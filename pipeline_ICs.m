@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(2);
+parameters.mice_all=parameters.mice_all(1);
 
 % ****************************************
 % ***Parameters.*** 
@@ -77,6 +77,9 @@ parameters.zscore_flag = false;
 
 % Number of digits you want in your stack number names (default is 3).
 parameters.digitNumber = 2; 
+
+% Use split domain ICs?
+parameters.splitDomains = true;
 
 %% Calculate ICs
 % Calculates ICs from SVD compressed data. Assumes one compressed dataset
@@ -112,10 +115,10 @@ parameters.output_filename = {['sources' num2str(parameters.num_sources)]};
 % Run code
 plot_rawICs(parameters); 
 
-%% Regularize ICs
+%% Regularize ICs 
 
 % Determine how many subplots you want for displaying your individual ICs.
-parameters.plot_sizes=[5,7]; 
+parameters.plot_sizes=[5,8]; 
 
 % Input directory 
 parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\raw ICs\'], 'mouse number', '\'};
@@ -143,7 +146,7 @@ parameters.originalSourcesDim = 1;
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
                                   'source', {'1:50'}, 'source_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
-git ad
+
 % Input values
 parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\regularized ICs_' num2str(parameters.area_threshold) 'pixels\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
@@ -167,10 +170,10 @@ parameters.loop_list.things_to_load.overlay.level = 'mouse';
 
 % [Right now, code assumes raw sources are in same file, I think it still
 % works if it's each source separate.]
-parameters.loop_list.things_to_load.original_ICs.dir = {[parameters.dir_exper '\spatial segmentation\raw ICs\'], 'mouse', '\'};
-parameters.loop_list.things_to_load.original_ICs.filename= {['sources' num2str(parameters.num_sources) '.mat']};
-parameters.loop_list.things_to_load.original_ICs.variable= {'sources'};
-parameters.loop_list.things_to_load.original_ICs.level = 'mouse';
+parameters.loop_list.things_to_load.original_sources.dir = {[parameters.dir_exper '\spatial segmentation\raw ICs\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.original_sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
+parameters.loop_list.things_to_load.original_sources.variable= {'sources'};
+parameters.loop_list.things_to_load.original_sources.level = 'mouse';
 
 % (for any existing artifact removals)
 parameters.loop_list.things_to_load.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
