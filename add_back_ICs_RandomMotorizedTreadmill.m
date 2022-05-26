@@ -1,4 +1,4 @@
-% add_back_ICs.m
+% add_back_ICs_RandomMotorizedTreadmill.m
 % Sarah West
 % 4/29/22
 
@@ -28,11 +28,12 @@
 
 % load raw ICs & masks to manipulate
 add_back = cell(1);
+original_IC_numbers = cell(1);
+raw_ICs = cell(1);
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\raw ICs\1087\sources100.mat', 'sources');
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\preprocessing\masks\masks_m1087.mat');
 % Fill masks, convert to absolte value
 sources = abs(FillMasks(sources', indices_of_mask, 256, 256));
-
 
 % Right medial rostral M2
 holder = NaN(256);
@@ -43,6 +44,8 @@ inds = find(holder1 > 2.0); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar;
 add_back{1} = holder;
+original_IC_numbers{1} = 19;
+raw_ICs{1} = source;
 
 % Left caudal M2
 holder = NaN(256);
@@ -53,6 +56,8 @@ inds = find(holder1 > 2.0); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar;
 add_back{2} = holder;
+original_IC_numbers{2} = 3;
+raw_ICs{2} = source;
 
 % right medial parietal
 holder = NaN(256);
@@ -63,6 +68,8 @@ inds = find(holder1 > 1.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4])
 add_back{3} = holder;
+original_IC_numbers{3} = 1;
+raw_ICs{3} = source;
 
 % more of left lateral M1 (ish)
 holder = NaN(256);
@@ -73,8 +80,13 @@ inds = find(holder1 > 1.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{4} = holder;
+original_IC_numbers{4} = 13;
+raw_ICs{4} = source;
 
 add_back_all{1} = add_back;
+original_IC_numbers_all{1} = original_IC_numbers;
+raw_ICs_all{1} = raw_ICs;
+
 close all;
 %% 
 % Mouse 1088
@@ -92,6 +104,8 @@ close all;
 
 % load raw ICs & masks to manipulate
 add_back = cell(1);
+original_IC_numbers = cell(1);
+raw_ICs = cell(1);
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\raw ICs\1088\sources100.mat', 'sources');
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\preprocessing\masks\masks_m1088.mat');
 % Fill masks, convert to absolte value
@@ -106,6 +120,8 @@ inds = find(holder1 > 1); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{1} = holder;
+original_IC_numbers{1} = 40;
+raw_ICs{1} = source;
 
 % left anterior-ish M1 (between ICs 13 & 26)
 holder = NaN(256);
@@ -116,6 +132,8 @@ inds = find(holder1 > 1.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 5]);
 add_back{2} = holder;
+original_IC_numbers{2} = 58;
+raw_ICs{2} = source;
 
 % More of 12
 holder = NaN(256);
@@ -126,6 +144,8 @@ inds = find(source > 3.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 5]);
 add_back{3} = holder;
+original_IC_numbers{3} = 13;
+raw_ICs{3} = source;
 
 % More of 38
 holder = NaN(256);
@@ -136,6 +156,8 @@ inds = find(holder1 > 3.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 5]);
 add_back{4} = holder;
+original_IC_numbers{4} = 68;
+raw_ICs{4} = source;
 
 % More of IC 2 (right caudal M2)
 holder = NaN(256);
@@ -146,6 +168,8 @@ inds = find(holder1 > 2.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 5]);
 add_back{5} = holder;
+original_IC_numbers{5} = 1;
+raw_ICs{5} = source;
 
 % Left retrosplenial
 holder = NaN(256);
@@ -156,8 +180,12 @@ inds = find(holder1 > 2.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 5]);
 add_back{6} = holder;
+original_IC_numbers{6} = 32;
+raw_ICs{6} = source;
 
 add_back_all{2} = add_back;
+original_IC_numbers_all{2} = original_IC_numbers;
+raw_ICs_all{2} = raw_ICs; 
 close all;
 %%
 % Mouse 1096
@@ -176,6 +204,8 @@ close all;
 % (done) 57 might be real, with corresponding left IC (re-threshold both)
 % (done) Right lateral parietal (corresponds to IC 39)
 add_back = cell(1);
+original_IC_numbers = cell(1);
+raw_ICs = cell(1);
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\raw ICs\1096\sources100.mat', 'sources');
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\preprocessing\masks\masks_m1096.mat');
 % Fill masks, convert to absolte value
@@ -191,6 +221,8 @@ inds = find(holder1 > 2); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{1} = holder;
+original_IC_numbers{1} = 12;
+raw_ICs{1} = source;
 
 % mid parietal (IC 26 left part)
 holder = NaN(256);
@@ -202,6 +234,8 @@ inds = find(holder1 > 3.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{2} = holder;
+original_IC_numbers{2} = 19;
+raw_ICs{2} = source;
 
 % right part of 30
 holder = NaN(256);
@@ -213,6 +247,8 @@ inds = find(holder1 > 2.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{3} = holder;
+original_IC_numbers{3} = 23;
+raw_ICs{3} = source;
 
 % IC 33, better left medial rostral M2
 holder = NaN(256);
@@ -224,6 +260,8 @@ inds = find(holder1 > 3.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{4} = holder;
+original_IC_numbers{4} = 25;
+raw_ICs{4} = source;
 
 % reight retrosplenial, right part of IC 43 
 % holder = NaN(256);
@@ -235,6 +273,7 @@ add_back{4} = holder;
 % holder(inds) = source(inds);
 % figure; imagesc(holder); colorbar; caxis([0 4]);
 % add_back{5} = holder;
+% raw_ICs{5} = source;
 
 % right lateral parietal (corresponds to IC 39)
 source =  nansum(sources(:, :, [39 54 59 61]), 3)./4;
@@ -246,8 +285,10 @@ inds = find(holder1 > 2.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{6} = holder;
+original_IC_numbers{6} = source;
+raw_ICs{6} = source;
 
-% right part of 57git stat
+% right part of 57
 source =  sources(:, :, 89);
 figure; imagesc(source);
 holder = NaN(256);
@@ -257,6 +298,8 @@ inds = find(holder1 > 3.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{7} = holder;
+original_IC_numbers{7} = 89;
+raw_ICs{7} = source;
 
 % left part of 57
 source =  sources(:, :, 89);
@@ -268,8 +311,12 @@ inds = find(holder1 > 3); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{8} = holder;
+original_IC_numbers{8} = 89;
+raw_ICs{8} = source;
 
 add_back_all{3} = add_back;
+original_IC_numbers_all{3} = original_IC_numbers; 
+raw_ICs_all{3} = raw_ICs; 
 close all;
 %%
 
@@ -311,6 +358,8 @@ close all;
 % (done) Rethreshold 38 (left visual was cut off by blood vessel) 
 % (done) Better caudal M2s
 add_back = cell(1);
+original_IC_numbers = cell(1);
+raw_ICs = cell(1);
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\raw ICs\1106\sources100.mat', 'sources');
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\preprocessing\masks\masks_m1106.mat');
 % Fill masks, convert to absolte value
@@ -326,6 +375,8 @@ inds = find(holder1 > 2.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{1} = holder;
+original_IC_numbers{1} = 1;
+raw_ICs{1} = source;
 
 % Left side of IC 6 (left retrosplenial)
 source =  sources(:, :,5);
@@ -337,6 +388,8 @@ inds = find(holder1 > 2.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{2} = holder;
+original_IC_numbers{2} = 5;
+raw_ICs{2} = source;
 
 % Left side of IC 26 (posterior parietal)
 source =  sources(:, :,25);
@@ -348,6 +401,8 @@ inds = find(holder1 > 2.0); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{3} = holder;
+original_IC_numbers{3} = 25;
+raw_ICs{3} = source;
 
 % Right lateral rostral M2
 source =  sources(:, :,26);
@@ -359,6 +414,8 @@ inds = find(holder1 > 2.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{4} = holder;
+original_IC_numbers{4} = 26;
+raw_ICs{4} = source;
 
 % left part of 28 (mid parietal)
 source =  sources(:, :,27);
@@ -370,6 +427,8 @@ inds = find(holder1 > 2.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{5} = holder;
+original_IC_numbers{5} = 27;
+raw_ICs{5} = source;
 
 % rethreshold 38 (left visual) 
 source =  sources(:, :,42);
@@ -381,6 +440,8 @@ inds = find(holder1 > 3.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{6} = holder;
+original_IC_numbers{6} = 42;
+raw_ICs{6} = source;
 
 % Better left caudal M2
 source =  nansum(sources(:, :, [11 12]), 3)./2; % 12
@@ -392,6 +453,8 @@ inds = find(holder1 > 2.0); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{7} = holder;
+original_IC_numbers{7} = source;
+raw_ICs{7} = source;
 
 % Better right caudal M2
 source =  nansum(sources(:, :, [11 12]), 3)./2; 
@@ -403,8 +466,13 @@ inds = find(holder1 > 2.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{8} = holder;
+original_IC_numbers{8} = source;
+raw_ICs{8} = source;
 
 add_back_all{5} = add_back;
+original_IC_numbers_all{5} = original_IC_numbers;
+raw_ICs_all{5} = raw_ICs;
+
 close all;
 %%
 % Mouse 1107
@@ -427,6 +495,9 @@ close all;
 % Right medial M1-type ? 
 % Get top of raw IC 1 back 
 add_back = cell(1);
+original_IC_numbers = cell(1);
+raw_ICs = cell(1);
+
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\raw ICs\1107\sources100.mat', 'sources');
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\preprocessing\masks\masks_m1107.mat');
 % Fill masks, convert to absolte value
@@ -442,6 +513,8 @@ inds = find(holder1 > 2.0); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{1} = holder;
+original_IC_numbers{1} = 4;
+raw_ICs{1} = source;
 
 % medial motor -type (corresponding to IC 1)
 source =  sources(:, :,4);
@@ -453,6 +526,8 @@ inds = find(holder1 > 2.0); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{2} = holder;
+original_IC_numbers{2} = 4;
+raw_ICs{2} = source;
 
 % Left retrosplenial
 source =  nansum(sources(:, :, [15 28]), 3)./2;
@@ -464,6 +539,8 @@ inds = find(holder1 > 2.0); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{3} = holder;
+original_IC_numbers{3} = source;
+raw_ICs{3} = source;
 
 % Left medial rostral M2 
 source =  nansum(sources(:, :, [20 26]), 3)./2;
@@ -475,6 +552,8 @@ inds = find(holder1 > 1.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{4} = holder;
+original_IC_numbers{4} = source;
+raw_ICs{4} = source;
 
 % Right lateral rostral M2 
 source =  sources(:, :,17);
@@ -486,6 +565,8 @@ inds = find(holder1 > 1.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{5} = holder;
+original_IC_numbers{5} = 17;
+raw_ICs{5} = source;
 
 % Put back raw source 22
 source =  sources(:, :,22);
@@ -497,6 +578,8 @@ inds = find(holder1 > 3.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{6} = holder;
+original_IC_numbers{6} = 22;
+raw_ICs{6} = source;
 
 % Re-threshold 48;
 source =  sources(:, :,54);
@@ -508,6 +591,8 @@ inds = find(holder1 > 2.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{7} = holder;
+original_IC_numbers{7} = 54;
+raw_ICs{7} = source;
 
 % Re-threshold 52
 source =  sources(:, :,74);
@@ -519,6 +604,8 @@ inds = find(holder1 > 3); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{8} = holder;
+original_IC_numbers{8} = 74;
+raw_ICs{8} = source;
 
 % Left caudal M2
 % source =  nansum(sources(:, :, [12 19 26]), 3)./3; 
@@ -530,6 +617,8 @@ add_back{8} = holder;
 % holder(inds) = source(inds);
 % figure; imagesc(holder); colorbar; caxis([0 4]);
 % add_back{9} = holder;
+% original_IC_numbers{9} = source;
+%raw_ICs{9} = source;
 
 % Right caudal M2
 % source =  sources(:,:,39);
@@ -541,6 +630,8 @@ add_back{8} = holder;
 % holder(inds) = source(inds);
 % figure; imagesc(holder); colorbar; caxis([0 6]);
 % add_back{10} = holder;
+% original_IC_numbers{10} = source;
+% raw_ICs{10} = source;
 
 % Right medial M1-ish
 source =  nansum(sources(:, :, [1 ]), 3)./1; 
@@ -552,6 +643,8 @@ inds = find(holder1 >2.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{11} = holder;
+original_IC_numbers{11} = source;
+raw_ICs{11} = source;
 
 % Get top of raw IC 1 back 
 source = sources(:, :, 1); 
@@ -563,9 +656,12 @@ inds = find(holder1 >2.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{12} = holder;
-
+original_IC_numbers{12} = 1;
+raw_ICs{12} = source;
 
 add_back_all{6} = add_back;
+original_IC_numbers_all{6} = original_IC_numbers;
+raw_ICs_all{6} = raw_ICs;
 
 %% Make overlay plots of these new additions to artifact- removed overlays to
 % check progress (DON'T SAVE YET)
@@ -583,7 +679,7 @@ for mousei = 1:size(mice_all,2)
     if ~isempty(add_back_all{mousei})
         
         % Load artifacts removed overlay
-        load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\' mouse '\sources.mat']);
+        load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\' mouse '\sources.mat']);
 
         % holder for overlay.
         overlay = sources.overlay;
@@ -606,9 +702,106 @@ for mousei = 1:size(mice_all,2)
 
         % Plot new overlay
         subplot(2,3, mousei); imagesc(overlay); axis square; title(mouse);
-        xticks([]); yticks([]);
+        xticks([]); yticks([]); colorbar;
     end
 end
 
 % Save figure;
 savefig('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\added back.fig');
+
+%% Actually add back these ICs to artifacts removed matrices
+% *****DO ONLY ONCE*****
+% load mice_all
+load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\mice_all.mat');
+
+% For each mouse, 
+for mousei = 1:size(mice_all,2)
+    mouse = mice_all(mousei).name;
+
+    % If add_back_all isn't empty for that mouse
+    if ~isempty(add_back_all{mousei})
+        
+        % Load artifacts removed.
+        load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\' mouse '\sources.mat']);
+
+        % holder for overlay.
+        overlay = sources.overlay;
+
+        % Get maximum value already in overlay.
+        number_ics = max(max(overlay));
+
+        % For each IC added back in that mouse
+        for ici = 1: numel(add_back_all{mousei})
+            
+            % If not empty
+            if ~isempty(add_back_all{mousei}{ici})
+    
+                % Update number of elements in indices to remove, artifact masks
+                sources.indices_to_remove = [sources.indices_to_remove; cell(1)];
+                sources.artifact_masks = [sources.artifact_masks; cell(1)];
+        
+                % Update original IC number. 
+                % If empty or has more than 1 number, 
+                if isempty(original_IC_numbers_all{mousei}{ici}) || numel(original_IC_numbers_all{mousei}{ici}) > 1
+                    sources.originalICNumbers = [sources.originalICNumbers; NaN];
+                else 
+                    sources.originalICNumbers = [sources.originalICNumbers; original_IC_numbers_all{mousei}{ici}];
+                end 
+
+                % Update overlay. 
+            
+                    % Add new source to overlay
+                    new_source = add_back_all{mousei}{ici};
+                    overlay(find(new_source > 0)) = ici + number_ics;
+
+                % Add the source itself in. 
+                   
+                    % Multiply mask by raw source
+                    try
+                    color_mask = add_back_all{mousei}{ici} .* raw_ICs_all{mousei}{ici};
+                    catch 
+                       disp('here');
+                    end 
+                    % Concatenate
+                    sources.sources = cat(3, sources.sources, color_mask);
+
+            end
+        end 
+
+        % Rename overlay
+        sources.overlay = overlay;
+
+        % Save
+        mkdir(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback without high fine tuning\' mouse '\']);
+        save(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback without high fine tuning\' mouse '\sources.mat'], 'sources');
+    
+        % *** Now do it all for the regularized folder
+        load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\regularized ICs 150 amp 3.5 two conditionals small 2.5 large 1\' mouse '\sources100.mat']);
+        
+        % For each IC added back in that mouse
+        for ici = 1: numel(add_back_all{mousei})
+            
+            % If not empty
+            if ~isempty(add_back_all{mousei}{ici})
+    
+                % Update original IC number. 
+                % If empty or has more than 1 number, 
+                if isempty(original_IC_numbers_all{mousei}{ici}) || numel(original_IC_numbers_all{mousei}{ici}) > 1
+                    sources.originalICNumber_domainsSplit = [sources.originalICNumber_domainsSplit NaN];
+                else 
+                    sources.originalICNumber_domainsSplit = [sources.originalICNumber_domainsSplit original_IC_numbers_all{mousei}{ici}];
+                end 
+                
+                % Update colormask
+                color_mask = add_back_all{mousei}{ici} .* raw_ICs_all{mousei}{ici};
+                
+                % Concatenate
+                sources.color_mask_domainsSplit = cat(3, sources.color_mask_domainsSplit, color_mask);
+            end 
+        end
+
+        
+        mkdir(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\regularized ICs 150 amp 3.5 two conditionals small 2.5 large 1\post addback\' mouse '\']);
+        save(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\regularized ICs 150 amp 3.5 two conditionals small 2.5 large 1\post addback\' mouse '\sources100.mat'], 'sources');
+    end
+end 
