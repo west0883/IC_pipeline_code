@@ -64,7 +64,7 @@ function []= calculate_ICs(parameters)
       
         % Create output file path & filename
         dir_out =CreateFileStrings(parameters.dir_out, mouse, [], [], [], false);
-        filename = CreateFileStrings(parameters.filename_output, mouse, [], [], [], false);
+        filename = CreateFileStrings(parameters.output_filename, mouse, [], [], [], false);
         mkdir(dir_out); 
 
         % Save sources and B.
