@@ -337,7 +337,7 @@ function [parameters] = RemoveArtifacts(parameters)
             
             % Don't ask if you're already on the last data set, (need to
             % assume sources is the lowest level of iteration for now)
-            next_iterator_up = parameters.git add values{end-1};
+            next_iterator_up = parameters.values{end-1};
             next_max_iteration = parameters.maxIterations.numbers_only(end-1);
     
             if next_iterator_up >= next_max_iteration
