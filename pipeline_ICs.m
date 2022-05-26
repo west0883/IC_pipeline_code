@@ -398,7 +398,7 @@ parameters.loop_list.things_to_load.assigned_region_order.level = 'mouse';
 % Load sources with artifacts removed
 parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts_removed\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.sources.filename = {'sources.mat'};
-parameters.loop_list.things_to_load.sources.variable= {'sources'};
+parameters.loop_list.things_to_load.sources.variable= {'sources.sources'};
 parameters.loop_list.things_to_load.sources.level = 'mouse';
 
 % Save reordered sources. 
