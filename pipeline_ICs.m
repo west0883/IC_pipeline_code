@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(1);
+parameters.mice_all=parameters.mice_all(2);
 
 % ****************************************
 % ***Parameters.*** 
@@ -75,6 +75,9 @@ parameters.area_threshold=300;
 % Indicate if you want to z-score your ICs before regularizing (true/false)
 parameters.zscore_flag = false; 
 
+% Number of digits you want in your stack number names (default is 3).
+parameters.digitNumber = 2; 
+
 %% Calculate ICs
 % Calculates ICs from SVD compressed data. Assumes one compressed dataset
 % per mouse.
@@ -92,6 +95,7 @@ parameters.use_gpu = true_false_vector(i);
 % (DON'T EDIT). Run code. 
 calculate_ICs(parameters); 
 end 
+
 %% Plot raw ICs
 % Determine how many subplots you want for displaying your individual ICs.
 parameters.plot_sizes=[10,10]; 
@@ -111,7 +115,7 @@ plot_rawICs(parameters);
 %% Regularize ICs
 
 % Determine how many subplots you want for displaying your individual ICs.
-parameters.plot_sizes=[5,8]; 
+parameters.plot_sizes=[5,7]; 
 
 % Input directory 
 parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\raw ICs\'], 'mouse number', '\'};
@@ -137,7 +141,7 @@ parameters.originalSourcesDim = 1;
 
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'1:50'}, 'source_iterator'};
+                                  'source', {'1:20'}, 'source_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
