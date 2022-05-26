@@ -51,6 +51,7 @@ function []= calculate_ICs(parameters)
                     B = jader_lsp([S*V'],num_sources);
                 end
                 sources=B*[S*V'];
+                sources = gather(sources);
                 
             case 'U'
                  if parameters.use_gpu
@@ -59,7 +60,8 @@ function []= calculate_ICs(parameters)
                  else 
                      B = jader_lsp([U*S],num_sources);
                  end
-                sources=B*[U*S];
+                 sources=B*[U*S];
+                 sources = gather(sources);
         end
       
         % Create output file path & filename
