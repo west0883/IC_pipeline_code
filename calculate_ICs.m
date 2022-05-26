@@ -16,12 +16,10 @@ function []= calculate_ICs(parameters)
     num_sources = parameters.num_sources;
 
     % Set up input and output directories 
-    dir_in=dir_dataset; 
-    dir_out=[dir_exper 'ICs raw\'];
-    mkdir(dir_out); 
+    dir_in=dir_dataset;  
     
     % Tell user where data is being saved. 
-    disp(['data saved in ' dir_out]); 
+    disp(['data saved in ' parameters.dir_out{1}]); 
     
     % For each mouse
     for mousei=1:size(mice_all,2)  
@@ -48,7 +46,12 @@ function []= calculate_ICs(parameters)
                 sources=B*[U*S];
         end
         
+        % Create output file path & filename
+        dir_out =CreateFileStrings(parameters.dir_out, mouse, [], [], [], false);
+        filename = CreateFileStrings(parameters.filename_output, mouse, [], [], [], false);
+        mkdir(dir_out); 
+
         % Save sources and B.
-        save([dir_out 'm' mouse '_' num2str(num_sources) 'sources.mat'], 'sources', 'B');  
+        save([dir_out filename], 'sources', 'B', '-v7.3');  
     end
 end
