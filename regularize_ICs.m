@@ -31,13 +31,6 @@ function []=regularize_ICs(parameters)
             sources = permute(sources, [2 source_dimension setxor([2 source_dimension], 1:ndims(sources))]);
         end
         
-%         % If the user wants to use zscoring (if zscore_flag is true)
-%         if parameters.zscore_flag 
-%             
-%             % Perform zscoring (built-in "zscore" function works on each
-%             % column independently).
-%             sources=zscore(sources); 
-%         end
         
         % If masked, (if mask_flag is "true")
         if parameters.masked_flag 
@@ -95,6 +88,13 @@ function []=regularize_ICs(parameters)
             % close to 0, while everything relevant will be either very
             % positve or very negative). 
             map=abs(map); 
+
+            % If the user wants to use zscoring (if zscore_flag is true)
+            if parameters.zscore_flag 
+                
+                % Perform zscoring, ignoring NaNs
+                map =  (map - mean(map, 'all', 'omitnan'))/std(map, [], 'all', 'omitnan');
+            end
             
             % Threshold the IC into a mask, with everything below the amplitude
             % threshold set to 0. 
@@ -170,7 +170,7 @@ function []=regularize_ICs(parameters)
                     
                     % Concatenate
                     output_sources.color_mask_domainsSplit=cat(3, output_sources.color_mask_domainsSplit, color_mask_single); 
-                    %output_sources.originalICNumber_domainsSplit = [output_sources.originalICNumber_domainsSplit, ici];
+                    output_sources.originalICNumber_domainsSplit = [output_sources.originalICNumber_domainsSplit, ici];
                     output_sources.domain_mask_domainsSplit=cat(3, output_sources.domain_mask_domainsSplit, Reg0./domaini); 
                 
                 end
@@ -184,7 +184,7 @@ function []=regularize_ICs(parameters)
                 output_sources.color_mask_domainsTogether = cat(3, output_sources.color_mask_domainsTogether, color_mask_single); 
                 output_sources.domain_mask_domainsTogether = cat(3, output_sources.domain_mask_domainsTogether, Reg_binary);
                 output_sources.domain_mask_domainsTogether_numbered = cat(3, output_sources.domain_mask_domainsTogether_numbered, Reg);
-                %output_sources.originalICNumber_domainsTogether =  [output_sources.originalICNumber_domainsTogether, ici]; 
+                output_sources.originalICNumber_domainsTogether =  [output_sources.originalICNumber_domainsTogether, ici]; 
             end
         end
 
@@ -282,7 +282,7 @@ function []=regularize_ICs(parameters)
              subplot(subplot_rows,subplot_columns,i); 
              imagesc(holder); colormap(mymap); caxis([-1 10]);
              axis square; xticks([]); yticks([]);
-            % title([num2str(i) ', ' num2str(output_sources.originalICNumber_domainsSplit(i))]);
+             title([num2str(i) ', ' num2str(output_sources.originalICNumber_domainsSplit(i))]);
         end
         sgtitle(['mouse ' mouse ', component nums: new, original']);
 
