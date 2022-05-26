@@ -330,13 +330,6 @@ parameters.loop_list.things_to_load.sources_artifacts_removed.filename = {'sourc
 parameters.loop_list.things_to_load.sources_artifacts_removed.variable= {'sources'};
 parameters.loop_list.things_to_load.sources_artifacts_removed.level = 'mouse';
 
-% Also load sources WITHOUT artifacts removed (regularized only,to get the original center
-% of mass and area). 
-parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs_' num2str(parameters.area_threshold) 'pixels\'], 'mouse', '\'};
-parameters.loop_list.things_to_load.sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
-parameters.loop_list.things_to_load.sources.variable= {'sources'};
-parameters.loop_list.things_to_load.sources.level = 'mouse';
-
 % Save metrics 
 parameters.loop_list.things_to_save.metrics.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\best region fit\'], 'mouse', '\'};
 parameters.loop_list.things_to_save.metrics.filename= {'best_region_fit_metrics.mat'};
