@@ -16,7 +16,7 @@ function []=regularize_ICs(parameters)
     xDim = parameters.xDim;
     masked_flag = parameters.masked_flag; 
     plot_sizes = parameters.plot_sizes;
-    masks_name = parameters.masks_name;
+    %masks_name = parameters.masks_name;
     zscore_flag = parameters.zscore_flag;
     
     % Establish input and output directories 
@@ -35,12 +35,20 @@ function []=regularize_ICs(parameters)
         dir_out=[dir_out_base '\' mouse '\']; 
         mkdir(dir_out);
         
-        % Load ICA-calculated sources of mouse
-        load([dir_in 'm' mouse '_' num2str(num_sources) 'sources.mat'], 'sources');
+        % Get the names of the ICA-calculated sources of mouse
+        filename = CreateFileStrings([parameters.dir_input_base parameters.input_filename], mouse, [], [], [], false);
+        input_variable = CreateFileStrings(parameters.input_variable, mouse, [], [], [], false);
         
-        % Flip the sources so each IC is its own column. (pixels x source
+        % Load the raw sources, convert variable to something generic.
+        sources = load(filename, input_variable); 
+        sources = sources.(input_variable);
+
+        % Check which dimension the pixels vs sources are in. Flip the sources so each IC is its own column. (pixels x source
         % number). 
-        sources=sources'; 
+        source_dimension = find(size(sources = parameters.num_sources));
+        if source_dimension == 1
+            sources = permute(sources, [2 source_dimension setxor([2 source_dimension], 1:ndims(sources))]);
+        end
         
         % If the user wants to use zscoring (if zscore_flag is true)
         if zscore_flag 
@@ -52,11 +60,18 @@ function []=regularize_ICs(parameters)
         
         % If masked, (if mask_flag is "true")
         if masked_flag 
-            % Find file name of masks
-            file_string_mask=CreateFileStrings(masks_name, mouse, [], [], false);
+            % Find file name of mask
+            file_string_mask=CreateFileStrings([parameters.dir_input_mask parameters.mask_filename], mouse, [], [], false);
             
-            % Load mask indices 
-            load(file_string_mask, 'indices_of_mask'); 
+            % Get variable name of mask
+            mask_variable =CreateFileStrings(parameters.mask_variable, mouse, [], [], false);
+
+            % Load mask indices, convert to generic name
+            indices_of_mask = load(file_string_mask, mask_variable);
+            indices_of_mask = indices_of_mask.(mask_variable);
+
+            % Convert mask variable to something generic
+            %eval(['indices_of_mask = ' mask_variable ';']);
             
             % Run the FillMasks.m function
             sources_reshaped=FillMasks(sources, indices_of_mask, yDim, xDim);
@@ -69,18 +84,22 @@ function []=regularize_ICs(parameters)
         
         % Make holding variables for thresholded ICs-- with domains in same
         % image.
-        color_mask_domainstogether=NaN(size(sources_reshaped));
-        domain_mask_domainstogether=NaN(size(sources_reshaped));
+        output_sources.color_mask_domainstogether=NaN(size(sources_reshaped));
+        output_sources.domain_mask_domainstogether=NaN(size(sources_reshaped));
         
         % Make holding variables for thresholded ICs-- with domains split
         % into different images. Will change sizes on each iteration.
-        color_mask_domainssplit=[];
-        domain_mask_domainssplit=[];
+        output_sources.color_mask_domainssplit=[];
+        output_sources.domain_mask_domainssplit=[];
         
         % Initialize the "position" counters at 0, for
         % keeping the domains together in same image.
         position_domainstogether=0;
         
+        % Initialize holders for original IC numbers.
+        output_sources.originalICNumber_domainsSplit = [];
+        output_sources.originalICNumber_domainsTogether = [];
+
         % For each source (IC)
         for ici=1:size(sources_reshaped,3)
             
@@ -144,42 +163,59 @@ function []=regularize_ICs(parameters)
                     color_mask_single=map.*(Reg0./domaini);
                     
                     % Concatenate
-                    color_mask_domainssplit=cat(3, color_mask_domainssplit, color_mask_single); 
-                    domain_mask_domainssplit=cat(3, domain_mask_domainssplit, Reg0./domaini); 
+                    output_sources.color_mask_domainssplit=cat(3, output_sources.color_mask_domainssplit, color_mask_single); 
+                    output_sources.originalICNumber_domainsSplit = [output_sources.originalICNumber_domainsSplit, ici];
+                    output_sources.domain_mask_domainssplit=cat(3, output_sources.domain_mask_domainssplit, Reg0./domaini); 
+                
                 end
                 
                 % Hold flat masks of the IC with the
                 % domain ID preserved.
-                domain_mask_domainstogether(:,:,position_domainstogether)=Reg_id;
-
+                output_sources.domain_mask_domainstogether(:,:,position_domainstogether)=Reg_id;
+                output_sources.originalICNumber_domainsTogether =  [output_sources.originalICNumber_domainsTogether, ici];
             end
         end
+
+        % Get output names of regularized ICs, convert variable to specific
+        % name.
+        dir_out = CreateFileStrings(parameters.dir_output_base, mouse, [], [], [], false);
+        mkdir(dir_out);
+        output_filename = CreateFileStrings(parameters.output_filename, mouse, [], [], [], false);
+        output_variable = CreateFileStrings(parameters.output_variable, mouse, [], [], [], false);
         
+        eval([output_variable ' = output_sources;']);
+
         % Save the regularized ICs 
-        save([dir_out 'regularized ICs_' num2str(num_sources) 'sources.mat'], 'color_mask_domainssplit', 'domain_mask_domainssplit', 'domain_mask_domainstogether', '-v7.3'); 
-   
-        
-        % Draw an overlay image of all domain masks together. 
+        save([dir_out output_filename], output_variable, '-v7.3'); 
+ 
+        % Draw an overlay image of all domains masks together. 
         
         % Initialize a blank overlay image. 
         overlay=zeros(yDim, xDim);
         
         % For each IC
-        for ici=1:size(domain_mask_domainssplit,3)
+        for ici=1:size(output_sources.domain_mask_domainssplit,3)
            % Find the IC indices
-           ind2=find(domain_mask_domainssplit(:,:,ici)==1); 
+           ind2=find(output_sources.domain_mask_domainssplit(:,:,ici)==1); 
            
            % Apply the IC number as the value at the IC indices
            overlay(ind2)=ici;
         end
-        
+
         % Plot the overlay. 
-         figure;hold on; 
-         imagesc(flipud(overlay)); colorbar;
-         title(['mouse ' mouse]); axis tight; axis square;        
-         
-         % Save the overlay fig
-         savefig([dir_out 'regularized ICs_overlay_' num2str(num_sources) 'sources.fig']); 
+        figure;hold on; 
+        imagesc(flipud(overlay)); colorbar;
+        title(['mouse ' mouse]); axis tight; axis square;    
+
+        % Get overlay figure output name.
+        if strcmp(output_filename(numel(output_filename)-3:end), '.mat')
+            filename_overlay = [output_filename(1:numel(output_filename)-4) '_overlay'];
+        else 
+            filename_overlay = [output_filename '_overlay'];
+        end
+        % Save overlay
+        savefig([dir_out filename_overlay]); 
+  
 
         % Plot individual color maps 
         
@@ -187,14 +223,23 @@ function []=regularize_ICs(parameters)
         subplot_rows=plot_sizes(1);
         subplot_columns=plot_sizes(2); 
         figure; 
-        for i=1:size(color_mask_domainssplit,3)
+        for i=1:size(output_sources.color_mask_domainssplit,3)
             subplot(subplot_rows,subplot_columns,i); 
-            imagesc(color_mask_domainssplit(:,:,i)); 
-            %axis square;
+            imagesc(output_sources.color_mask_domainssplit(:,:,i)); 
+            axis square; xticks([]); yticks([]);
+            title([num2str(i) ', ' num2str(output_sources.originalICNumber_domainsSplit(i))]);
         end
-        suptitle(['mouse ' mouse]);
-        % Save figure of individual  color maps.
-        savefig([dir_out 'regularized ICs_color masks_' num2str(num_sources) 'sources.fig']); 
-    
+        sgtitle(['mouse ' mouse ', component nums: new, original']);
+
+        % Get colormasks figure output name.
+        if strcmp(output_filename((end-3):end), '.mat')
+            filename_colormasks = [output_filename([1:end-4]) '_colormasks'];
+        else 
+            filename_colormasks = [output_filename '_colormasks'];
+        end
+
+        % Save colormasks figure
+        savefig([dir_out filename_colormasks]); 
+       
     end 
 end
