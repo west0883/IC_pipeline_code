@@ -251,6 +251,14 @@ if isfield(parameters, 'loop_list')
 parameters = rmfield(parameters,'loop_list');
 end
 
+parameters.amplitude_threshold = 3.5; % 3.5
+parameters.minPixels = 150; % 150
+parameters.large_component_conditional_zscore_flag = true;
+parameters.maxPixels = 5000; 
+parameters.large_component_conditional_zscore_thresh = 1;
+parameters.small_component_conditional_zscore_flag = true;
+parameters.small_component_conditional_zscore_thresh = 2.5;
+
 % Dimension different sources are in.
 parameters.sourcesDim = 3;
 
