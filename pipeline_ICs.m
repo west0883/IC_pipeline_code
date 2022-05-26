@@ -110,7 +110,7 @@ plot_rawICs(parameters);
 % For cleaning the ICs
 % Applies a (raw) threshold to the ICs.
 
-parameters.amplitude_threshold = 3.5; % 3.5
+parameters.amplitude_threshold = 2.0; % 3.5
 
 % Minimim size in pixels of an IC.
 parameters.minPixels = 150; % 150
@@ -120,10 +120,10 @@ parameters.minPixels = 150; % 150
 
 parameters.large_component_conditional_zscore_flag = true;
 parameters.maxPixels = 5000; 
-parameters.large_component_conditional_zscore_thresh = 1;
+parameters.large_component_conditional_zscore_thresh = 2; % 1
 
 parameters.small_component_conditional_zscore_flag = true;
-parameters.small_component_conditional_zscore_thresh = 2.5;
+parameters.small_component_conditional_zscore_thresh = 1; % 2.5
 
 % Input directory 
 parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\500 SVD components\raw ICs\'], 'mouse number', '\'};
@@ -174,7 +174,7 @@ parameters.originalSourcesDim = 1;
 
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'25:70'}, 'source_iterator'};
+                                  'source', {'48:70'}, 'source_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
@@ -215,6 +215,22 @@ parameters.loop_list.things_to_save.sources_artifacts_removed.variable= {'source
 parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'mouse';
 
 RunAnalysis({@RemoveArtifacts}, parameters);
+
+%% Plot IC overlays together
+
+% Always clear loop list first. 
+if isfield(parameters, 'loop_list')
+parameters = rmfield(parameters,'loop_list');
+end
+
+figure; 
+for i = 1:size(mice_all(:))
+    mouse = mice_all(i).name;
+    load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\' mouse '\sources.mat']);
+    subplot(2, 3, i); imagesc(sources.overlay); axis square; title(mouse); colorbar;
+    xticks([]); yticks([]);
+end 
+
 
 %% Return any deleted ICs you deleted by accident.
 % % Loop variables
