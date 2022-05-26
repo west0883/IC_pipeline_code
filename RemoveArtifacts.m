@@ -215,11 +215,6 @@ function [parameters] = RemoveArtifacts(parameters)
         colormap(cmap);
         axis square; xticks([]); yticks([]); 
 
-    end
-
-    % ** Draw a figure showing the brain underneath the source.**
-    if isfield(parameters, 'reference_image')
-
         % Increase counter of what small subplot you're on;
         small_subplot_counter = small_subplot_counter + 1; 
         
@@ -229,9 +224,9 @@ function [parameters] = RemoveArtifacts(parameters)
         subplot(subplots(1), subplots(2),subplots(3));
         img3 = imagesc(reference_image_brain);
         set(img3, 'AlphaData', ~isnan(source)); % Make nans "transparent"
-        colormap(gca,[0.5 0.5 0.5; gray(256)]);
+        colormap(gca,[0 0.5 0.75; gray(256)]); % Make background a light blue so you can tell the difference from the brain behind the source
         reference_image_brain(find(reference_image_brain == 0)) = NaN;
-        caxis([min(min(reference_image_brain)) max(max(reference_image_brain))]);
+        caxis([min(min(reference_image_context)) max(max(reference_image_context))]);
         title('brain beneath source');
         xticks([]); yticks([]); axis square; axis square; 
     end 
@@ -335,7 +330,7 @@ function [parameters] = RemoveArtifacts(parameters)
         parameters.sources_artifacts_removed.sources(S{:}) = source;
     end
 
-    close fig; 
+    close(fig); 
    
     % Remove sources that should be removed. (Do this every time, is okay
     % because sources_artifacts_removed.sources is re-created each time.)
