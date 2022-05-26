@@ -131,8 +131,9 @@ regularize_ICs(parameters);
 % Dimension different sources are in.
 parameters.sourcesDim = 3;
 
-% Dimension the pixels dimension of original data is in.
+% Dimension the pixels dimension, different sources dimension of original data.
 parameters.originalSourcesPixelsDim = 2; 
+parameters.originalSourcesDim = 1; 
 
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
