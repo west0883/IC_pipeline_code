@@ -619,7 +619,7 @@ parameters.loop_list.things_to_load.assigned_region_order.variable= {'region_ass
 parameters.loop_list.things_to_load.assigned_region_order.level = 'mouse';
 
 % Load sources with artifacts removed
-parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback without high fine tuning\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback WITH high fine tuning\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.sources.filename = {'sources.mat'};
 parameters.loop_list.things_to_load.sources.variable= {'sources.sources'};
 parameters.loop_list.things_to_load.sources.level = 'mouse';
@@ -634,7 +634,7 @@ RunAnalysis({@ReorderSources}, parameters);
 
 %% Make a reordered overlay. 
 
-[subplot_rows, subplot_columns] = OptimizeSubplotNumbers(numel(parameters.mice_all(:)));
+[subplot_rows, subplot_columns] = OptimizeSubplotNumbers(numel(mice_all(:)));
 
 figure; 
 for i = 1:size(mice_all(:))
