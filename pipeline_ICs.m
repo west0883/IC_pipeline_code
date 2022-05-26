@@ -18,7 +18,7 @@ clear all;
 parameters.experiment_name='Random Motorized Treadmill';
 
 % Create the input directory of the SVD compressed datasets for each mouse
-parameters.dir_dataset=['Y:\Sarah\Analysis\Experiments\' parameters.experiment_name '\spatial segmentation\SVD compressions\'];
+parameters.dir_dataset=['X:\Sarah\Analysis\Experiments\' parameters.experiment_name '\spatial segmentation\SVD compressions\'];
 
 % Establish the format of the file names of compressed data. Each piece
 % needs to be a separate entry in a cell array. Put the string 'mouse', 'day',
@@ -28,7 +28,7 @@ parameters.dir_dataset=['Y:\Sarah\Analysis\Experiments\' parameters.experiment_n
 parameters.compressed_data_name={parameters.dir_dataset, 'm', 'mouse number', '_SVD_compressed.mat'}; 
 
 % Output directory name bases
-parameters.dir_base='Y:\Sarah\Analysis\Experiments\';
+parameters.dir_base='X:\Sarah\Analysis\Experiments\';
 parameters.dir_exper=[parameters.dir_base parameters.experiment_name '\']; 
 
 % Was the data masked in preprocessing? (Masking that removed pixels, so
@@ -82,7 +82,10 @@ parameters.zscore_flag = 0;
 
 % output directory & filename
 parameters.dir_out = {parameters.dir_exper, 'spatial segmentation\raw ICs\', 'mouse_number', '\'};
-parameteres.ouput_filename = {[num2str(parameters.num_sources) 'sources.mat']};
+parameters.ouput_filename = {[num2str(parameters.num_sources) 'sources.mat']};
+
+% Use a gpu for this calculation? (t/f)
+parameters.use_gpu = true;
 
 % (DON'T EDIT). Run code. 
 calculate_ICs(parameters); 
