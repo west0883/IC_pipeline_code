@@ -135,8 +135,8 @@ parameters.sourcesDim = 3;
 parameters.originalSourcesPixelsDim = 2; 
 
 % Loop variables
-parameters.loop_list.iterators = {'mouse', {'mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'size(sources.color_mask_domainssplit, parameters.sourcesDim)'}, 'source_iterator'};
+parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
+                                  'source', {'1:50'}, 'source_iterator'};
 
 parameters.loop_variables.mice_all = parameters.mice_all;
 
