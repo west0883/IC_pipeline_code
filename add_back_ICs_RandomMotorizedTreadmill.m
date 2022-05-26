@@ -330,18 +330,53 @@ close all;
 
 % Notes:
 % (all ICs labeled from pre-artifacts removed)
-% IC 3 might have bilateral rostral M2 regions
-% IC 8 might have corresponding right side one
-% IC 10 has potential M2 regions 
-% IC 20 has left corresponding region
+% (found onw) IC 3 might have bilateral rostral M2 regions
+% (can't find) IC 8 might have corresponding right side one
+% (bad) IC 10 has potential M2 regions 
+% (done) IC 20 has left corresponding region
 % IC 21 has a dark circle around it?? Might have a medial M1-type region in
 % it , though
 % 23 & 24 might be artifacts, but they cover areas that have been suggested
 % as lateal rostral M2 in other ICs.
 % 30 should be expanded.Has a corresponding source on the right?
 % 31 has corresponding source on right.
+add_back = cell(1);
+original_IC_numbers = cell(1);
+raw_ICs = cell(1);
+load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\raw ICs\1100\sources100.mat', 'sources');
+load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\preprocessing\masks\masks_m1100.mat');
+% Fill masks, convert to absolte value
+sources = abs(FillMasks(sources', indices_of_mask, 256, 256));
 
-close all;
+% left medial rostral M2
+source =  sources(:, :,2);
+figure; imagesc(source);
+holder = NaN(256);
+holder1 = NaN(256);
+holder1(1:100, 1:100) = source(1:100, 1:100); % Limit area
+inds = find(holder1 > 1); % Threshold
+holder(inds) = source(inds);
+figure; imagesc(holder); colorbar; caxis([0 4]);
+add_back{1} = holder;
+original_IC_numbers{1} = 2;
+raw_ICs{1} = source;
+
+% better left lateral rostral M2
+source = sum(sources(:, :,[3 5 16 20]), 3, 'omitnan')./4;
+figure; imagesc(source);
+holder = NaN(256);
+holder1 = NaN(256);
+holder1(1:80,1:65) = source(1:80 , 1:65); % Limit area
+inds = find(holder1 > 1.8); % Threshold
+holder(inds) = source(inds);
+figure; imagesc(holder); colorbar; caxis([0 4]);
+add_back{2} = holder;
+original_IC_numbers{2} = NaN;
+raw_ICs{2} = source;
+
+
+
+
 %%
 % Mouse 1106
 % Notes:
