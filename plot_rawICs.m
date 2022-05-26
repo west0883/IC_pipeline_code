@@ -55,7 +55,14 @@ function []=plot_rawICs(parameters)
         end 
         
         % Plot sources
-        figure; for i=1:num_sources; subplot(plot_sizes(1), plot_sizes(2),i); imagesc(abs(sources_permute(:,:,i))); caxis([0 10]); end
+        figure; 
+        for i=1:num_sources 
+            subplot(plot_sizes(1), plot_sizes(2),i); 
+            imagesc(abs(sources_permute(:,:,i))); 
+            caxis([0 10]); 
+            xticks([]);
+            yticks([]);
+        end
         sgtitle(['m' mouse ', ' num2str(num_sources) ' absolute value of sources']); 
          
         % Get output names.
