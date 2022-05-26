@@ -321,18 +321,14 @@ close all;
 %%
 
 % Mouse 1100
-% these parameters look best: 
-% parameters.amplitude_threshold = 2.0; 
-% parameters.minPixels = 150;
-% parameters.maxPixels = 5000; 
-% parameters.large_component_conditional_zscore_thresh = 2; 
-% parameters.small_component_conditional_zscore_thresh = 1; 
+% (you decided to use the same thresholds as the other mice) 
 
 % Notes:
 % (all ICs labeled from pre-artifacts removed)
-% (found onw) IC 3 might have bilateral rostral M2 regions
-% (can't find) IC 8 might have corresponding right side one
-% (bad) IC 10 has potential M2 regions 
+% (found one) IC 3 might have bilateral rostral M2 regions
+% (done) IC 8 might have corresponding right side one (well represented by
+% IC 10)
+% (done) IC 10 has potential M2 regions 
 % (done) IC 20 has left corresponding region
 % IC 21 has a dark circle around it?? Might have a medial M1-type region in
 % it , though
@@ -349,12 +345,12 @@ load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\preprocessing\mas
 sources = abs(FillMasks(sources', indices_of_mask, 256, 256));
 
 % left medial rostral M2
-source =  sources(:, :,2);
+source =  sum(sources(:, :,[2 9]), 3, 'omitnan')./2;
 figure; imagesc(source);
 holder = NaN(256);
 holder1 = NaN(256);
 holder1(1:100, 1:100) = source(1:100, 1:100); % Limit area
-inds = find(holder1 > 1); % Threshold
+inds = find(holder1 > 2.5); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{1} = holder;
@@ -373,7 +369,10 @@ figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{2} = holder;
 original_IC_numbers{2} = NaN;
 raw_ICs{2} = source;
-
+ 
+% Right medial M1-type? (maybe left in there, too)
+source = sources(:, :, 16);
+figure; imagesc(source);
 
 
 
