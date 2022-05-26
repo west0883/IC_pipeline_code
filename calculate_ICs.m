@@ -5,8 +5,16 @@
 % Calculates ICs from SVD compressed data. Assumes one compressed dataset
 % per mouse.
 
-function []= calculate_ICs(days_all, dir_dataset, compressed_data_name, dir_exper, spatial_component, num_sources) 
+function []= calculate_ICs(parameters) 
     
+    % Return parameters to individual names.
+    mice_all = parameters.mice_all;
+    dir_dataset = parameters.dir_dataset;
+    compressed_data_name = parameters.compressed_data_name; 
+    dir_exper = parameters.dir_exper;
+    spatial_component = parameters.spatial_component;
+    num_sources = parameters.num_sources;
+
     % Set up input and output directories 
     dir_in=dir_dataset; 
     dir_out=[dir_exper 'ICs raw\'];
@@ -16,10 +24,10 @@ function []= calculate_ICs(days_all, dir_dataset, compressed_data_name, dir_expe
     disp(['data saved in ' dir_out]); 
     
     % For each mouse
-    for mousei=1:size(days_all,2)  
+    for mousei=1:size(mice_all,2)  
         
         % Get the mouse name and display to user.
-        mouse=days_all(mousei).mouse;
+        mouse=mice_all(mousei).mouse;
         disp(['mouse #' mouse]); 
         
         % Create name of files to load 
