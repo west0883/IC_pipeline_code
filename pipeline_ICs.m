@@ -141,7 +141,7 @@ parameters.originalSourcesDim = 1;
 
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'7:50'}, 'source_iterator'};
+                                  'source', {'1:50'}, 'source_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
@@ -150,12 +150,12 @@ parameters.loop_list.things_to_load.sources.filename= {['sources' num2str(parame
 parameters.loop_list.things_to_load.sources.variable= {'sources'};
 parameters.loop_list.things_to_load.sources.level = 'mouse';
 
-parameters.loop_list.things_to_load.indices_of_mask.dir = {[parameters.dir_exper 'masks/']};
+parameters.loop_list.things_to_load.indices_of_mask.dir = {[parameters.dir_exper 'preprocessing\masks\']};
 parameters.loop_list.things_to_load.indices_of_mask.filename= {'masks_m', 'mouse', '.mat'};
 parameters.loop_list.things_to_load.indices_of_mask.variable= {'indices_of_mask'}; 
 parameters.loop_list.things_to_load.indices_of_mask.level = 'mouse';
 
-parameters.loop_list.things_to_load.reference_image.dir = {[parameters.dir_exper 'representative images\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.reference_image.dir = {[parameters.dir_exper 'preprocessing\representative images\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.reference_image.filename= {'reference_image.mat'};
 parameters.loop_list.things_to_load.reference_image.variable= {'reference_image'};
 parameters.loop_list.things_to_load.reference_image.level = 'mouse';
@@ -243,11 +243,48 @@ RunAnalysis({@RemoveArtifacts}, parameters);
 %% Align atlases 
 % (Get from the LocaNMF preprocessing pipeline folder you made)
 
+%% Make an atlas colorscheme (make the "values" of each region more sensible)
+
+% % Always clear loop list first. 
+% if isfield(parameters, 'loop_list')
+% parameters = rmfield(parameters,'loop_list');
+% end
+% 
+% % Load UN-aligned atlas. 
+% parameters.loop_list.things_to_load.atlas.dir = {[parameters.dir_exper 'spatial segmentation\aligned atlases\']};
+% parameters.loop_list.things_to_load.atlas.filename= {'atlas.mat'};
+% parameters.loop_list.things_to_load.atlas.variable= {'atlas'}; 
+% parameters.loop_list.things_to_load.atlas.level = 'mouse';
+% 
+% % Save newly-ordered atlas. 
+% parameters.loop_list.things_to_save.atlas_reordered.dir = {[parameters.dir_exper 'spatial segmentation\aligned atlases\']};
+% parameters.loop_list.things_to_save.atlas_reordered.filename= {'atlas_reordered.mat'};
+% parameters.loop_list.things_to_save.atlas_reordered.variable= {'atlas'}; 
+% parameters.loop_list.things_to_save.atlas_reordered.level = 'mouse';
+
+
+
+% Get the unique atlas regions after masking, get their indices in the
+% % list of names
+% remaining_regions = 1:number_of_regions; 
+% holder = [];
+% regions_values = unique(abs(parameters.atlas_masked));
+% for regioni = 1:number_of_regions
+%     value_holder = getfield(parameters.region_names, all_regions{regioni}); 
+%     if isempty(find(regions_values == abs(value_holder)))
+%         holder = [holder; regioni];
+%     end
+% end 
+% remaining_regions(holder) = []; 
+% remaining_regions = unique();
+% for i = 1:numel(remaining_regions_values)
+%     remaining_regions_indices = find([parameters.region_names(:)] == remaining_regions_values)
+% end     
+    % Use the positive version of those regions and order them based on
+    % COM.
+
+
 %% Find best atlas locations. 
-% (from locomotion paper):
-% IC_groups_eachmouse.m
-% make_official_catalogue_permouse.m
-% find_coordinates_official_mousecatalogues.m
 
 % Always clear loop list first. 
 if isfield(parameters, 'loop_list')
@@ -261,16 +298,24 @@ parameters.sourcesDim = 3;
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
 
+% Load the "new region order" list, if necessary. Is the list of regions
+% sorted by their center-of-mass from fron to back, left side only. Right
+% side is the negative of these values. (Same for all mice)
+parameters.loop_list.things_to_load.region_order.dir = {[parameters.dir_exper 'spatial segmentation\aligned atlases\']};
+parameters.loop_list.things_to_load.region_order.filename= {'all_regions_sorted.mat'};
+parameters.loop_list.things_to_load.region_order.variable= {'all_regions'}; 
+parameters.loop_list.things_to_load.region_order.level = 'mouse';
+
 % Load aligned atlas. 
-parameters.loop_list.things_to_load.atlas.dir = {[parameters.dir_exper 'spatial segmentation\aligned atlases\'], 'mouse'};
+parameters.loop_list.things_to_load.atlas.dir = {[parameters.dir_exper 'spatial segmentation\aligned atlases\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.atlas.filename= {'atlas.mat'};
 parameters.loop_list.things_to_load.atlas.variable= {'atlas'}; 
 parameters.loop_list.things_to_load.atlas.level = 'mouse';
 
 % Load corresponding atlas region names
-parameters.loop_list.things_to_load.region_names.dir = {[parameters.dir_exper 'spatial segmentation\aligned atlases\'], 'mouse'};
+parameters.loop_list.things_to_load.region_names.dir = {[parameters.dir_exper 'spatial segmentation\aligned atlases\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.region_names.filename= {'atlas.mat'};
-parameters.loop_list.things_to_load.region_names.variable= {'regions'}; 
+parameters.loop_list.things_to_load.region_names.variable= {'areanames'}; 
 parameters.loop_list.things_to_load.region_names.level = 'mouse';
 
 % Load mouse's mask, if necessary.
@@ -282,7 +327,7 @@ parameters.loop_list.things_to_load.indices_of_mask.level = 'mouse';
 % Load sources with artifacts removed
 parameters.loop_list.things_to_load.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts_removed\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.sources_artifacts_removed.filename = {'sources.mat'};
-parameters.loop_list.things_to_load.sources_artifacts_removed.variable= {'sources.sources'};
+parameters.loop_list.things_to_load.sources_artifacts_removed.variable= {'sources'};
 parameters.loop_list.things_to_load.sources_artifacts_removed.level = 'mouse';
 
 % Also load sources WITHOUT artifacts removed (regularized only,to get the original center
@@ -304,11 +349,11 @@ parameters.loop_list.things_to_save.figure_best_fit.filename= {'best_region_fit.
 parameters.loop_list.things_to_save.figure_best_fit.variable= {};
 parameters.loop_list.things_to_save.figure_best_fit.level = 'mouse';
 
-% Save figure of sources of atlas that have multiple potential best regions 
-parameters.loop_list.things_to_save.figure_multiple_best_fit.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\best region fit\'], 'mouse', '\'};
-parameters.loop_list.things_to_save.figure_multiple_best_fit.filename= {'multiple_best_region_fit.fig'};
-parameters.loop_list.things_to_save.figure_multiple_best_fit.variable= {};
-parameters.loop_list.things_to_save.figure_multiple_best_fit.level = 'mouse';
+%Save figure of plotted metrics matrices. 
+parameters.loop_list.things_to_save.figure_metrics.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\best region fit\'], 'mouse', '\'};
+parameters.loop_list.things_to_save.figure_metrics.filename= {'best_region_fit_metrics.fig'};
+parameters.loop_list.things_to_save.figure_metrics.variable= {};
+parameters.loop_list.things_to_save.figure_metrics.level = 'mouse';
 
 % Run code
 RunAnalysis({@FindAtlasRegions}, parameters);
