@@ -161,8 +161,12 @@ function [parameters] = RemoveArtifacts(parameters)
     % Grab axis handle for drawing on with ManualMasking
     axis_for_drawing = gca; 
 
+    % Arrange input dialogue options-- allowing for interaction with
+    % figures
+    opts.WindowStyle = 'normal';
+
     % *** Ask if the whole IC should be thrown out.***
-    user_answer1= inputdlg(['Do you want to throw out this entire source as an artifact? y=yes, n=no']); 
+    user_answer1= inputdlg(['Do you want to throw out this entire source as an artifact? y=yes, n=no'], 'User input', 1,{''}, opts); 
    
     %Convert the user's answer into a value
     answer1=user_answer1{1};
@@ -198,7 +202,7 @@ function [parameters] = RemoveArtifacts(parameters)
     close all; 
 
     % Ask if the user wants to work on next source.
-    user_answer1= inputdlg(['Do you want to work on the next source? y = yes, n = no']); 
+    user_answer1= inputdlg(['Do you want to work on the next source? y = yes, n = no'], 'User input', 1,{''}, opts); 
 
     % Convert the user's answer into a value
     answer1=user_answer1{1};
@@ -224,7 +228,7 @@ function [parameters] = RemoveArtifacts(parameters)
 
     % If this was the max source number & there ask user if they want to work on next dataset; Don't ask if there aren't multiple levels of iterators. 
     if source_iterator == number_of_sources && numel(parameters.continue_flag) > 1
-        user_answer1= inputdlg(['Do you want to work on the next data set? y = yes, n = no']); 
+        user_answer1= inputdlg(['Do you want to work on the next data set? y = yes, n = no'], 'User input', 1,{''}, opts); 
     
         % Convert the user's answer into a value
         answer1=user_answer1{1};
