@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all([4]);
+%parameters.mice_all=parameters.mice_all([4 6 ]);
 
 % ****************************************
 % ***Parameters.*** 
@@ -260,7 +260,7 @@ parameters.originalSourcesDim = 1;
 
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'1:70'}, 'source_iterator'};
+                                  'source', {'18:70'}, 'source_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
@@ -272,7 +272,7 @@ parameters.loop_list.things_to_load.sources.variable= {'sources'};
 parameters.loop_list.things_to_load.sources.level = 'mouse';
 
 parameters.loop_list.things_to_load.indices_of_mask.dir = {[parameters.dir_exper 'preprocessing\masks\']};
-parameters.loop_list.things_to_load.indices_of_mask.filename= {'masks_m', 'mouse', '_firstversion.mat'};
+parameters.loop_list.things_to_load.indices_of_mask.filename= {'masks_m', 'mouse', '.mat'};
 parameters.loop_list.things_to_load.indices_of_mask.variable= {'indices_of_mask'}; 
 parameters.loop_list.things_to_load.indices_of_mask.level = 'mouse';
 
@@ -281,7 +281,7 @@ parameters.loop_list.things_to_load.reference_image.filename= {'reference_image.
 parameters.loop_list.things_to_load.reference_image.variable= {'reference_image'};
 parameters.loop_list.things_to_load.reference_image.level = 'mouse';
 
-parameters.loop_list.things_to_load.original_sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\raw ICs\'], 'mouse', '_first mask version\'};
+parameters.loop_list.things_to_load.original_sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\raw ICs\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.original_sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.loop_list.things_to_load.original_sources.variable= {'sources'};
 parameters.loop_list.things_to_load.original_sources.level = 'mouse';
@@ -544,7 +544,7 @@ end
 % % Run code
 % RunAnalysis({@FindAtlasRegions}, parameters);
 
-%% Final manual assignment (script, in experiment "control scripts" folder)
+%% Final manual assignment 
 manual_region_assignments.m;
 
 %% Plot manual assignments next to the color-coded atlas.
@@ -590,7 +590,7 @@ manual_region_assignments.m;
 
 % Loop variables; iterate through mice, sources
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator'};
-parameters.loop_variables.mice_all = mice_all(2);
+parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Say if you should add together multiple sources that belong to same new
 % sources/nodes (otherwise just overwrites previous ones for now)
@@ -606,7 +606,7 @@ parameters.loop_list.things_to_load.assigned_region_order.variable= {'region_ass
 parameters.loop_list.things_to_load.assigned_region_order.level = 'mouse';
 
 % Load sources with artifacts removed
-parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback WITH high fine tuning\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback without high fine tuning\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.sources.filename = {'sources.mat'};
 parameters.loop_list.things_to_load.sources.variable= {'sources.sources'};
 parameters.loop_list.things_to_load.sources.level = 'mouse';
@@ -624,8 +624,8 @@ RunAnalysis({@ReorderSources}, parameters);
 [subplot_rows, subplot_columns] = OptimizeSubplotNumbers(numel(parameters.mice_all(:)));
 
 figure; 
-for i = 1:size(parameters.mice_all(:))
-    mouse = parameters.mice_all(i).name;
+for i = 1:size(mice_all(:))
+    mouse = mice_all(i).name;
     
     load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\manual assignments\' mouse '\sources_reordered.mat']);
     
