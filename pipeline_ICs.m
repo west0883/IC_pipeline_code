@@ -141,9 +141,9 @@ parameters.originalSourcesDim = 1;
 
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'1:20'}, 'source_iterator'};
+                                  'source', {'1:50'}, 'source_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
-
+git ad
 % Input values
 parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\regularized ICs_' num2str(parameters.area_threshold) 'pixels\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
