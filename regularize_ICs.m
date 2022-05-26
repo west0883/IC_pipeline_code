@@ -156,7 +156,7 @@ function []=regularize_ICs(parameters)
         end
         
         % Save the regularized ICs 
-        save([dir_out 'regularized ICs.mat'], 'color_mask_domainssplit', 'domain_mask_domainssplit', 'domain_mask_domainstogether', '-v7.3'); 
+        save([dir_out 'regularized ICs_' num2str(num_sources) 'sources.mat'], 'color_mask_domainssplit', 'domain_mask_domainssplit', 'domain_mask_domainstogether', '-v7.3'); 
    
         
         % Draw an overlay image of all domain masks together. 
@@ -179,7 +179,7 @@ function []=regularize_ICs(parameters)
          title(['mouse ' mouse]); axis tight; axis square;        
          
          % Save the overlay fig
-         savefig([dir_out 'regularized ICs_overlay.fig']); 
+         savefig([dir_out 'regularized ICs_overlay_' num2str(num_sources) 'sources.fig']); 
 
         % Plot individual color maps 
         
@@ -194,7 +194,7 @@ function []=regularize_ICs(parameters)
         end
         suptitle(['mouse ' mouse]);
         % Save figure of individual  color maps.
-        savefig([dir_out 'regularized ICs_color masks.fig']); 
+        savefig([dir_out 'regularized ICs_color masks_' num2str(num_sources) 'sources.fig']); 
     
     end 
 end
