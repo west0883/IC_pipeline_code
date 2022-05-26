@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(1);
+parameters.mice_all=parameters.mice_all;
 
 % ****************************************
 % ***Parameters.*** 
@@ -118,7 +118,7 @@ plot_rawICs(parameters);
 %% Regularize ICs 
 
 % Determine how many subplots you want for displaying your individual ICs.
-parameters.plot_sizes=[5,8]; 
+%parameters.plot_sizes=[5,8]; 
 
 % Input directory 
 parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\raw ICs\'], 'mouse number', '\'};
@@ -188,6 +188,8 @@ parameters.loop_list.things_to_save.sources_artifacts_removed.variable= {'source
 parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'mouse';
 
 RunAnalysis({@RemoveArtifacts}, parameters);
+
+%% Plot & save resulting cleaned ICs
 
 %% Group ICs into catalogues (interactive)
 % (from locomotion paper):
