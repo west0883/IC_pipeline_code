@@ -146,8 +146,7 @@ function [parameters] = RemoveArtifacts(parameters)
     
     % ** Draw a figure showing the original, un-thresholded source. ** 
     subplot(3,3,7); 
-    img1 = imagesc(original_source);   
-    set(img1, 'AlphaData', ~isnan(source)); 
+    img1 = imagesc(original_source);    
     colormap(gca, parula(256)); caxis([0 10]); 
     title('corresponding raw source');
     xticks([]); yticks([]); axis square;
@@ -179,9 +178,13 @@ function [parameters] = RemoveArtifacts(parameters)
     else
         % Grab any existing masks
         existing_masks = parameters.sources_artifacts_removed.artifact_masks{source_iterator};
+        
+        % Set a "don't flip" value -- don't flip up-down for this sort of
+        % masking.
+        flip = false;
 
         % Run fine-tune removal of artifacts within ICs.
-        [masks, indices_of_mask]=ManualMasking(source, existing_masks, axis_for_drawing);
+        [masks, indices_of_mask]=ManualMasking(source, existing_masks, axis_for_drawing, flip);
         
         % Take note of masks (need these for deleting individual masks later).
         parameters.sources_artifacts_removed.artifact_masks{source_iterator} = masks; 
