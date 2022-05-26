@@ -28,6 +28,13 @@ function [parameters] = RemoveArtifacts(parameters)
         number_of_sources = size(sources, parameters.sourcesDim);
     end
     
+    % Check if number of sources is greater than the max iterator for the
+    % source iterator, give warning if so. 
+    max_iteration = getfield(parameters.maxIterations, 'source_iterator'); 
+    if max_iteration < number_of_sources
+        disp('There are more sources than maximum iterations. You may need to increase your source iteration range.');
+    end
+
     % Define source_iterator based on location in keywords/values, use it for rest of analysis.
     source_iterator = parameters.values{find(contains(parameters.keywords,'source_iterator'))};
     
@@ -152,7 +159,7 @@ function [parameters] = RemoveArtifacts(parameters)
         % Get the color range you'll use for the contex image.
         top1 = max(max(source));
         top2 = max(max(reference_image_context)); 
-        cmap = [parula(top1 * 10); gray((top2)*20)];
+        cmap = [parula(top1 * 20); gray((top2)*20)];
         colormap(cmap);
         axis square; xticks([]); yticks([]); 
 
@@ -296,8 +303,8 @@ function [parameters] = RemoveArtifacts(parameters)
         parameters.save_now = true;
     end
     
-    % If this was the max source number & there ask user if they want to work on next dataset; Don't ask if there aren't multiple levels of iterators. 
-    if source_iterator == number_of_sources && numel(parameters.continue_flag) > 1
+    % If this was the max source number or user said they didn't want to work on next source, ask user if they want to work on next dataset; Don't ask if there aren't multiple levels of iterators. 
+    if source_iterator == number_of_sources && numel(parameters.continue_flag) > 1 || ~strcmp(answer1, 'y')
         user_answer1= inputdlg(['Do you want to work on the next data set? y = yes, n = no'], 'User input', 1,{''}, opts); 
     
         % Convert the user's answer into a value
