@@ -195,6 +195,9 @@ function [parameters] = RemoveArtifacts(parameters)
         parameters.continue_flag{end} = true;
     else    
         parameters.continue_flag{end} = false;
+
+        % Tell RunAnalysis to save this iteration
+        parameters.save_now = true;
     end
    
     % Remove sources that should be removed. (Do this every time, is okay
@@ -218,6 +221,10 @@ function [parameters] = RemoveArtifacts(parameters)
             parameters.continue_flag{end-1} = true;
         else    
             parameters.continue_flag {end-1}= false;
+
+            % Tell RunAnalysis to save this iteration-- will include all
+            % recursive edits to parameters structure
+            parameters.save_now = true;
         end
     end 
 end 
