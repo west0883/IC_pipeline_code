@@ -306,7 +306,7 @@ region_assignments = [
 
 [~,ordered] = sort(region_assignments(:,2));
 region_assignments = region_assignments(ordered,:);
-region_assignments_all{3} = region_assignments;
+region_assignments_all{4} = region_assignments;
 
 node_vector = 1:32; 
 IC_vector = 1:33; 
@@ -407,43 +407,43 @@ title(mouse);
 region_assignments = [
     % Left side
      16, 1;
-     29, 3;
-     24, 5;
+     30, 3;
+     25, 5;
      7, 7;
      8, 7;
-     35, 9;
+     36, 9;
      9, 11;
-            % No 13.
+     17, 13;       % No 13.
      6, 15;
      1, 17;
      2, 17;
      13, 19;
      10, 21;
-     33, 23;
+     34, 23;
      15, 25;
-     20, 25;
-     31, 27;
-     26, 29;
-     28, 31;
+     21, 25;
+     32, 27;
+     27, 29;
+     29, 31;
 
     % Right side
-    30, 2;
-    18, 4;
-    23, 6;
+    31, 2;
+    19, 4;
+    24, 6;
     4, 8;
-    27, 10;
+    28, 10;
     12, 12;
-    32, 14;
+    33, 14;
     3, 16;
-    34, 18;
+    35, 18;
     14, 20;
     11, 22;
-    25, 24;
-    19, 26;
-    21, 26;
-    17, 28;
+    26, 24;
+    20, 26;
+    22, 26;
+    18, 28;
     5, 30;
-    22, 32;  
+    23, 32;  
 ];
 
 [~,ordered] = sort(region_assignments(:,2));
@@ -451,7 +451,7 @@ region_assignments = region_assignments(ordered,:);
 region_assignments_all{6} = region_assignments;
 
 node_vector = 1:32; 
-IC_vector = 1:35; 
+IC_vector = 1:36; 
 
 a = setdiff(IC_vector, region_assignments(:,1)); 
 b = setdiff(node_vector, region_assignments(:,2));
