@@ -97,18 +97,23 @@ function []=regularize_ICs(parameters)
             
             % Threshold the IC into a mask, with everything below the amplitude
             % threshold set to 0. 
-            map(map<parameters.amplitude_threshold)=0;
+            map_thresholded = map;
+            map_thresholded(map<parameters.amplitude_threshold)=0;
+            
+            % Clean -- remove spindly pieces
+            [Reg, ~] = CleanClust(map_thresholded);
             
             % Run the ClustReg function to keep only ICs that have at least
             % the area threshold number of contiguous pixels. (Code by
             % Laurentiu Popa, from 2018 ish.)
-            [Reg,FinSize,DomId] = ClustReg(map,parameters.area_threshold);
+
+            % Find individual domains.
+            [Reg, ~,DomId] = ClustReg(Reg,parameters.area_threshold);
             
             % If there was at least one domain that passed the area
             % threshold,
             if ~isempty(DomId)
                 
-                %%%%%%%%%%%%%%%%%%%%%%55
                 
                 % Increase the position of domains in same image counter
                 position_domainstogether=position_domainstogether+1;
@@ -130,6 +135,13 @@ function []=regularize_ICs(parameters)
                     % (value of image doesn't equal that domain value) to
                     % 0.
                     Reg0(Reg0~=id0)=0;
+                    
+                    % Clean -- remove spindly pieces again
+                    [Reg0, ~] = CleanClust(Reg0);
+                    
+                    % Clean the domain --fill holes, smooth edges
+                    Reg0 = imclose(Reg0, [1 1 1 1 1 ; 1 1 1 1 1 ; 1 1 1 1 1]);
+
                      
                     % Set everything remaining to the domain iterator. (I 
                     % guess potentially the domain ID could be different from 
