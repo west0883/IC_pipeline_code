@@ -25,7 +25,7 @@ function []=plot_rawICs(parameters)
     for mousei=1:size(mice_all,2)  
         
         % Get the mouse name and display to user.
-        mouse=mice_all(mousei).mouse;
+        mouse=mice_all(mousei).name;
 
         % Load the raw sources. 
         load([dir_out 'm' mouse '_' num2str(num_sources) 'sources.mat']); 
