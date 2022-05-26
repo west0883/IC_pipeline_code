@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(3);
+parameters.mice_all=parameters.mice_all([2:3 5:6]);
 
 % ****************************************
 % ***Parameters.*** 
@@ -141,14 +141,97 @@ parameters.output_variable = {'sources'};
 regularize_ICs(parameters);
 
 
+%% ***PRE ADDBACK***: Remove IC artifacts (interactive)
+
+% parameters.amplitude_threshold = 3.5; % 3.5
+% parameters.minPixels = 150; % 150
+% parameters.large_component_conditional_zscore_flag = true;
+% parameters.maxPixels = 5000; 
+% parameters.large_component_conditional_zscore_thresh = 1;
+% parameters.small_component_conditional_zscore_flag = true;
+% parameters.small_component_conditional_zscore_thresh = 2.5;
+% 
+% % Use second (right) monitor for figures, if available?
+% parameters.second_monitor = false;
+% 
+% % Always clear loop list first. 
+% if isfield(parameters, 'loop_list')
+% parameters = rmfield(parameters,'loop_list');
+% end
+% 
+% % Dimension different sources are in.
+% parameters.sourcesDim = 3;
+% 
+% % Dimension the pixels dimension, different sources dimension of original data.
+% parameters.originalSourcesPixelsDim = 2; 
+% parameters.originalSourcesDim = 1; 
+% 
+% % Loop variables
+% parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
+%                                   'source', {'24:70'}, 'source_iterator'};
+% parameters.loop_variables.mice_all = parameters.mice_all;
+% 
+% % Input values
+% parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs ' ... 
+%                              num2str(parameters.minPixels) ' amp ' num2str(parameters.amplitude_threshold) ' two conditionals small ' num2str(parameters.small_component_conditional_zscore_thresh) ...
+%                               ' large ' num2str(num2str(parameters.large_component_conditional_zscore_thresh)) '\'], 'mouse', '\'};
+% parameters.loop_list.things_to_load.sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
+% parameters.loop_list.things_to_load.sources.variable= {'sources'};
+% parameters.loop_list.things_to_load.sources.level = 'mouse';
+% 
+% parameters.loop_list.things_to_load.indices_of_mask.dir = {[parameters.dir_exper 'preprocessing\masks\']};
+% parameters.loop_list.things_to_load.indices_of_mask.filename= {'masks_m', 'mouse', '.mat'};
+% parameters.loop_list.things_to_load.indices_of_mask.variable= {'indices_of_mask'}; 
+% parameters.loop_list.things_to_load.indices_of_mask.level = 'mouse';
+% 
+% parameters.loop_list.things_to_load.reference_image.dir = {[parameters.dir_exper 'preprocessing\representative images\'], 'mouse', '\'};
+% parameters.loop_list.things_to_load.reference_image.filename= {'reference_image.mat'};
+% parameters.loop_list.things_to_load.reference_image.variable= {'reference_image'};
+% parameters.loop_list.things_to_load.reference_image.level = 'mouse';
+% 
+% % [Right now, code assumes raw sources are in same file, I think it still
+% % works if it's each source separate.]
+% parameters.loop_list.things_to_load.original_sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\raw ICs\'], 'mouse', '\'};
+% parameters.loop_list.things_to_load.original_sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
+% parameters.loop_list.things_to_load.original_sources.variable= {'sources'};
+% parameters.loop_list.things_to_load.original_sources.level = 'mouse';
+% 
+% % (for any existing artifact removals)
+% parameters.loop_list.things_to_load.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\'], 'mouse', '\'};
+% parameters.loop_list.things_to_load.sources_artifacts_removed.filename = {'sources.mat'};
+% parameters.loop_list.things_to_load.sources_artifacts_removed.variable= {'sources'};
+% parameters.loop_list.things_to_load.sources_artifacts_removed.level = 'mouse';
+% 
+% % Output values
+% parameters.loop_list.things_to_save.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\'], 'mouse', '\'};
+% parameters.loop_list.things_to_save.sources_artifacts_removed.filename = {'sources.mat'};
+% parameters.loop_list.things_to_save.sources_artifacts_removed.variable= {'sources'};
+% parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'mouse';
+% 
+% RunAnalysis({@RemoveArtifacts}, parameters);
+
+%% Plot IC overlays together
+
+figure; 
+for i = 1:size(parameters.mice_all(:))
+    mouse = parameters.mice_all(i).name;
+    load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\' mouse '\sources.mat']);
+    subplot(2, 3, i); imagesc(sources.overlay); axis square; title(mouse); colorbar;
+    xticks([]); yticks([]);
+end 
+
 %% Add back some ICs 
+% *****RUN ONLY ONCE **** 
 % raw IC segments that you think are real but didn't survive the
 % regularization process. Wil run as a script, saves to end of list of
 % regularizing ICs so it doesn't disrupt any previously saved artifact
 % removals.
 
-%% Remove IC artifacts (interactive)
+add_back_ICs_RandomMotorizedTreadmill.m
 
+%% ***POST ADDBACK***: Remove IC artifacts (interactive)
+% ONLY GET RID OF THE OBVIOUS ARTIFACTS -- NO BLOOD VESSELS YET (to make
+% figures later)
 parameters.amplitude_threshold = 3.5; % 3.5
 parameters.minPixels = 150; % 150
 parameters.large_component_conditional_zscore_flag = true;
@@ -158,7 +241,7 @@ parameters.small_component_conditional_zscore_flag = true;
 parameters.small_component_conditional_zscore_thresh = 2.5;
 
 % Use second (right) monitor for figures, if available?
-parameters.second_monitor = true;
+parameters.second_monitor = false;
 
 % Always clear loop list first. 
 if isfield(parameters, 'loop_list')
@@ -174,13 +257,13 @@ parameters.originalSourcesDim = 1;
 
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'48:70'}, 'source_iterator'};
+                                  'source', {'1:70'}, 'source_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
 parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs ' ... 
                              num2str(parameters.minPixels) ' amp ' num2str(parameters.amplitude_threshold) ' two conditionals small ' num2str(parameters.small_component_conditional_zscore_thresh) ...
-                              ' large ' num2str(num2str(parameters.large_component_conditional_zscore_thresh)) '\'], 'mouse', '\'};
+                              ' large ' num2str(num2str(parameters.large_component_conditional_zscore_thresh)) '\post addback\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.loop_list.things_to_load.sources.variable= {'sources'};
 parameters.loop_list.things_to_load.sources.level = 'mouse';
@@ -195,42 +278,24 @@ parameters.loop_list.things_to_load.reference_image.filename= {'reference_image.
 parameters.loop_list.things_to_load.reference_image.variable= {'reference_image'};
 parameters.loop_list.things_to_load.reference_image.level = 'mouse';
 
-% [Right now, code assumes raw sources are in same file, I think it still
-% works if it's each source separate.]
 parameters.loop_list.things_to_load.original_sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\raw ICs\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.original_sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.loop_list.things_to_load.original_sources.variable= {'sources'};
 parameters.loop_list.things_to_load.original_sources.level = 'mouse';
 
 % (for any existing artifact removals)
-parameters.loop_list.things_to_load.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback without high fine tuning\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.sources_artifacts_removed.filename = {'sources.mat'};
 parameters.loop_list.things_to_load.sources_artifacts_removed.variable= {'sources'};
 parameters.loop_list.things_to_load.sources_artifacts_removed.level = 'mouse';
 
 % Output values
-parameters.loop_list.things_to_save.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\'], 'mouse', '\'};
+parameters.loop_list.things_to_save.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback without high fine tuning\'], 'mouse', '\'};
 parameters.loop_list.things_to_save.sources_artifacts_removed.filename = {'sources.mat'};
 parameters.loop_list.things_to_save.sources_artifacts_removed.variable= {'sources'};
 parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'mouse';
 
 RunAnalysis({@RemoveArtifacts}, parameters);
-
-%% Plot IC overlays together
-
-% Always clear loop list first. 
-if isfield(parameters, 'loop_list')
-parameters = rmfield(parameters,'loop_list');
-end
-
-figure; 
-for i = 1:size(mice_all(:))
-    mouse = mice_all(i).name;
-    load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\' mouse '\sources.mat']);
-    subplot(2, 3, i); imagesc(sources.overlay); axis square; title(mouse); colorbar;
-    xticks([]); yticks([]);
-end 
-
 
 %% Return any deleted ICs you deleted by accident.
 % % Loop variables
