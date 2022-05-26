@@ -53,13 +53,6 @@ function [parameters] = RemoveArtifacts(parameters)
     else
         number_of_sources = size(sources, parameters.sourcesDim);
     end
-    
-    % Check if the current source iterator is greater than the number of
-    % sources (can happen when you put an estimated maximum for source
-    % ranges.) Go back to RunAnalysis if so. 
-    if source_number > number_of_sources
-        return
-    end
 
     % Check if number of sources is greater than the max iterator for the
     % source iterator, give warning if so. 
@@ -67,10 +60,6 @@ function [parameters] = RemoveArtifacts(parameters)
     if max_iteration < number_of_sources
         disp('There are more sources than maximum iterations. You may need to increase your source iteration range.');
     end
-
-    % Get the original source number for THIS source   
-    original_source_iterator =originalSourceNumbers(source_number);
-
 
     % Check to see if there was an existing artifacts removed structure. If
     % not, establish all fields.
@@ -100,6 +89,18 @@ function [parameters] = RemoveArtifacts(parameters)
         parameters.sources_artifacts_removed = parameters.sources_artifacts_removed_recent;
     end
     
+    % Check if the current source iterator is greater than the number of
+    % sources (can happen when you put an estimated maximum for source
+    % ranges.) Go back to RunAnalysis if so. 
+    if source_number > number_of_sources
+        return
+    else
+
+        % Get the original source number for THIS source   
+        original_source_iterator =originalSourceNumbers(source_number);
+
+    end
+
     % Check if source was thrown out before, skip it.
     if ismember(source_number, parameters.sources_artifacts_removed.sources_removed)
         
