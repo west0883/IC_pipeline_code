@@ -38,6 +38,9 @@ function [parameters] = RemoveArtifacts(parameters)
        
        % Initialize empty list of sources to remove
        parameters.sources_artifacts_removed.sources_removed = [];
+       
+       % Initialize empty list of artifact masks. 
+       parameters.sources_artifacts_removed.artifact_masks = cell(size(sources, parameters.sourcesDim),1);
     end
 
     % Initialize matrix of artifact-removed sources. (Do each time so you
@@ -47,6 +50,11 @@ function [parameters] = RemoveArtifacts(parameters)
     % For each source to clean, 
     for sourcei = 1:size(sources, parameters.sourcesDim) 
         
+        % Check if source was thrown out before, skip it.
+        if ismember(sourcei, parameters.sources_artifacts_removed.sources_removed)
+            continue
+        end
+
         % Get the source out from the variable dimensions
         S{parameters.sourcesDim} = sourcei;  
         source = sources(S{:});
@@ -132,15 +140,21 @@ function [parameters] = RemoveArtifacts(parameters)
         % If the user's answer is y (being strict/difficult with this so
         % accidents are hard), mark it & move on to next source. Do nothing otherwise.
         if strcmp('y', answer1)
-            
+             
             % Note source for removal. 
             parameters.sources_artifacts_removed.indices_to_remove{sourcei} = 'all'; 
             parameters.sources_artifacts_removed.sources_removed = [parameters.sources_artifacts_removed.sources_removed; sourcei]; 
 
         else
+            % Grab any existing masks
+            existing_masks = parameters.sources_artifacts_removed.artifact_masks{sourcei};
+
             % Run fine-tune removal of artifacts within ICs.
-            [~, indices_of_mask]=ManualMasking(source, [], axis_for_drawing);
+            [masks, indices_of_mask]=ManualMasking(source, existing_masks, axis_for_drawing);
             
+            % Take note of masks (need these for deleting individual masks later).
+            parameters.sources_artifacts_removed.artifact_masks{sourcei} = masks; 
+
             % Remove indices from source.  
             parameters.sources_artifacts_removed.indices_to_remove{sourcei} = indices_of_mask;
             source(indices_of_mask) = 0; 
