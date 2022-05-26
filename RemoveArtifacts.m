@@ -22,8 +22,9 @@ function [parameters] = RemoveArtifacts(parameters)
         % Grab sources
         sources = parameters.sources.color_mask_domainsTogether;
 
-        % Define source_iterator based on location in keywords/values, use it for rest of analysis.
+        % Define source_iterator & source_number based on location in keywords/values, use it for rest of analysis.
         source_iterator = parameters.values{find(contains(parameters.keywords,'source_iterator'))};
+        source_number = str2num(parameters.values{find(contains(parameters.keywords,'source'))});
 
         % Find the original source numbers of the ICs
         originalSourceNumbers = parameters.sources.originalICNumber_domainsTogether';
@@ -36,18 +37,13 @@ function [parameters] = RemoveArtifacts(parameters)
         sources = parameters.sources.color_mask_domainsSplit;
         
         % Define source_iterator based on location in keywords/values, use it for rest of analysis.
-        source_iterator = parameters.values{find(contains(parameters.keywords,'source_iterator'))};
-        
+        source_iterator = parameters.values{find(strcmp(parameters.keywords,'source_iterator'))};
+        source_number = str2num(parameters.values{find(strcmp(parameters.keywords,'source'))});
+
         % Find the original source numbers of the ICs
         originalSourceNumbers = parameters.sources.originalICNumber_domainsSplit';
 
     end
-
-    % Get the original source number for THIS source   
-    original_source_iterator =originalSourceNumbers(source_iterator);
-
-    % Set up a holder for a variable number of dimensions
-    S = repmat({':'},1, ndims(sources));
    
     % If no sources dimension defined, default to last dimension. Make
     % number of sources equal to 1. 
@@ -58,6 +54,13 @@ function [parameters] = RemoveArtifacts(parameters)
         number_of_sources = size(sources, parameters.sourcesDim);
     end
     
+    % Check if the current source iterator is greater than the number of
+    % sources (can happen when you put an estimated maximum for source
+    % ranges.) Go back to RunAnalysis if so. 
+    if source_number > number_of_sources
+        return
+    end
+
     % Check if number of sources is greater than the max iterator for the
     % source iterator, give warning if so. 
     max_iteration = getfield(parameters.maxIterations, 'source_iterator'); 
@@ -65,12 +68,11 @@ function [parameters] = RemoveArtifacts(parameters)
         disp('There are more sources than maximum iterations. You may need to increase your source iteration range.');
     end
 
-    % Check if the current source iterator is greater than the number of
-    % sources (can happen when you put an estimated maximum for source
-    % ranges.) Go back to RunAnalysis if so. 
-    if source_iterator > number_of_sources
-        return
-    end
+    % Get the original source number for THIS source   
+    original_source_iterator =originalSourceNumbers(source_number);
+
+    % Set up a holder for a variable number of dimensions
+    S = repmat({':'},1, ndims(sources));
 
     % Check to see if there was an existing artifacts removed structure. If
     % not, establish all fields.
@@ -89,7 +91,7 @@ function [parameters] = RemoveArtifacts(parameters)
     end
     
     % Check if source was thrown out before, skip it.
-    if ismember(source_iterator, parameters.sources_artifacts_removed.sources_removed)
+    if ismember(source_number, parameters.sources_artifacts_removed.sources_removed)
         
         % Return to RunAnalysis loop, which will go to next source
         % iteration
@@ -101,11 +103,11 @@ function [parameters] = RemoveArtifacts(parameters)
     parameters.sources_artifacts_removed.sources = sources; 
     
     % Get the source out from the variable dimensions
-    S{parameters.sourcesDim} = source_iterator;  
+    S{parameters.sourcesDim} = source_number;  
     source = sources(S{:});
 
     % Apply any existing masks to source. 
-    existing_masks = parameters.sources_artifacts_removed.artifact_masks{source_iterator};
+    existing_masks = parameters.sources_artifacts_removed.artifact_masks{source_number};
     % If there are pre-existing masks, apply them
     existing_mask_indices = [];
     for i=1:size(existing_masks,3)
@@ -219,7 +221,7 @@ function [parameters] = RemoveArtifacts(parameters)
 
         % Make mask of current source 1+ the highest number, so it will be
         % plotted a set color every time. 
-        indices = overlay == source_iterator; 
+        indices = overlay == source_number; 
         overlay(indices) = number_of_sources + 1; 
 
         % Make a color map for the overlay, with the current source as red.
@@ -277,12 +279,12 @@ function [parameters] = RemoveArtifacts(parameters)
     if strcmp('y', answer1)
          
         % Note source for removal. 
-        parameters.sources_artifacts_removed.indices_to_remove{source_iterator} = 'all'; 
-        parameters.sources_artifacts_removed.sources_removed = [parameters.sources_artifacts_removed.sources_removed; source_iterator]; 
+        parameters.sources_artifacts_removed.indices_to_remove{source_number} = 'all'; 
+        parameters.sources_artifacts_removed.sources_removed = [parameters.sources_artifacts_removed.sources_removed; source_number]; 
 
     else
         % Grab any existing masks
-        existing_masks = parameters.sources_artifacts_removed.artifact_masks{source_iterator};
+        existing_masks = parameters.sources_artifacts_removed.artifact_masks{source_number};
         
         % Set a "don't flip" value -- don't flip up-down for this sort of
         % masking.
@@ -292,10 +294,10 @@ function [parameters] = RemoveArtifacts(parameters)
         [masks, indices_of_mask]=ManualMasking(source, existing_masks, axis_for_drawing, flip);
         
         % Take note of masks (need these for deleting individual masks later).
-        parameters.sources_artifacts_removed.artifact_masks{source_iterator} = masks; 
+        parameters.sources_artifacts_removed.artifact_masks{source_number} = masks; 
 
         % Remove indices from source.  
-        parameters.sources_artifacts_removed.indices_to_remove{source_iterator} = indices_of_mask;
+        parameters.sources_artifacts_removed.indices_to_remove{source_number} = indices_of_mask;
         source(indices_of_mask) = 0; 
         parameters.sources_artifacts_removed.sources(S{:}) = source;
     end
@@ -309,7 +311,17 @@ function [parameters] = RemoveArtifacts(parameters)
 
     % Update original (raw) source ID list with removed sources.
     originalSourceNumbers(parameters.sources_artifacts_removed.sources_removed) = [];
-    parameters.sources_artifacts_removedoriginalICNumbers =originalSourceNumbers;
+    parameters.sources_artifacts_removed.originalICNumbers =originalSourceNumbers;
+
+    % Make an overlay (from scratch every time?)
+    parameters.sources_artifacts_removed.overlay = zeros(size(source,1), size(source,2));
+    S = repmat({':'},1, ndims(parameters.sources_artifacts_removed.sources));
+    for i = 1: size(parameters.sources_artifacts_removed.sources, parameters.sourcesDim)
+        S{parameters.sourcesDim} = i; 
+        source_for_overlay = parameters.sources_artifacts_removed.sources(S{:});
+        parameters.sources_artifacts_removed.overlay(source_for_overlay > 0) = i;
+        
+    end 
 
     % Ask if the user wants to work on next source.
     user_answer1= inputdlg(['Do you want to work on the next source? y = yes, n = no'], 'User input', 1,{'n'}, opts); 
@@ -330,7 +342,7 @@ function [parameters] = RemoveArtifacts(parameters)
     
     % If this was the max source number or user said they didn't want to 
     % work on next source, ask user if they want to work on next dataset; 
-    if source_iterator == number_of_sources || ~strcmp(answer1, 'y')
+    if source_number == number_of_sources || ~strcmp(answer1, 'y')
        
         %  Don't ask if there aren't multiple levels of iterators,
         if numel(parameters.continue_flag) > 1
