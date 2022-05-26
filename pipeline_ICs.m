@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all;
+parameters.mice_all=parameters.mice_all(2);
 
 % ****************************************
 % ***Parameters.*** 
@@ -135,6 +135,11 @@ regularize_ICs(parameters);
 
 %% Remove IC artifacts (interactive)
 
+% Always clear loop list first. 
+if isfield(parameters, 'loop_list')
+parameters = rmfield(parameters,'loop_list');
+end
+
 % Dimension different sources are in.
 parameters.sourcesDim = 3;
 
@@ -144,7 +149,7 @@ parameters.originalSourcesDim = 1;
 
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'1:50'}, 'source_iterator'};
+                                  'source', {'34:50'}, 'source_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
@@ -187,9 +192,38 @@ parameters.loop_list.things_to_save.sources_artifacts_removed.filename = {'sourc
 parameters.loop_list.things_to_save.sources_artifacts_removed.variable= {'sources'};
 parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'mouse';
 
+
 RunAnalysis({@RemoveArtifacts}, parameters);
 
-%% Plot & save resulting cleaned ICs
+%% Plot resulting cleaned ICs
+% Always clear loop list first. 
+parameters = rmfield(parameters,'loop_list');
+
+% Dimension different sources are in.
+parameters.sourcesDim = 3;
+
+% Loop variables
+parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
+                                  'source', {'1:50'}, 'source_iterator'};
+parameters.loop_variables.mice_all = parameters.mice_all;
+
+% Input variables
+parameters.loop_list.things_to_load.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.sources_artifacts_removed.filename = {'sources.mat'};
+parameters.loop_list.things_to_load.sources_artifacts_removed.variable= {'sources'};
+parameters.loop_list.things_to_load.sources_artifacts_removed.level = 'mouse';
+
+% Output variables
+parameters.loop_list.things_to_save.sources_artifacts_removed_overlay.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
+parameters.loop_list.things_to_save.sources_artifacts_removed_overlay.filename = {'sources.fig'};
+parameters.loop_list.things_to_save.sources_artifacts_removed_overlay.level = 'mouse';
+
+parameters.loop_list.things_to_save.sources_artifacts_removed_colormasks.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
+parameters.loop_list.things_to_save.sources_artifacts_removed_colormasks.filename = {'sources.fig'};
+parameters.loop_list.things_to_save.sources_artifacts_removed_colormasks.level = 'mouse';
+
+% For now, assume everything was saved as structures from RemoveArtifacts.m
+RunAnalysis({@PlotCleanICs}, parameters);
 
 %% Group ICs into catalogues (interactive)
 % (from locomotion paper):
