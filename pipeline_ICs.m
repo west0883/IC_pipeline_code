@@ -18,7 +18,7 @@ clear all;
 parameters.experiment_name='Random Motorized Treadmill';
 
 % Create the input directory of the SVD compressed datasets for each mouse
-parameters.dir_dataset=['X:\Sarah\Analysis\Experiments\' parameters.experiment_name '\spatial segmentation\SVD compressions\'];
+parameters.dir_dataset=['Y:\Sarah\Analysis\Experiments\' parameters.experiment_name '\spatial segmentation\SVD compressions\'];
 
 % Establish the format of the file names of compressed data. Each piece
 % needs to be a separate entry in a cell array. Put the string 'mouse', 'day',
@@ -28,7 +28,7 @@ parameters.dir_dataset=['X:\Sarah\Analysis\Experiments\' parameters.experiment_n
 parameters.compressed_data_name={parameters.dir_dataset, 'm', 'mouse number', '_SVD_compressed.mat'}; 
 
 % Output directory name bases
-parameters.dir_base='X:\Sarah\Analysis\Experiments\';
+parameters.dir_base='Y:\Sarah\Analysis\Experiments\';
 parameters.dir_exper=[parameters.dir_base parameters.experiment_name '\']; 
 
 % Was the data masked in preprocessing? (Masking that removed pixels, so
@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(1:3);
+parameters.mice_all=parameters.mice_all(1);
 
 % ****************************************
 % ***Parameters.*** 
@@ -70,37 +70,39 @@ parameters.num_sources=100;
 parameters.amplitude_threshold=3.5; 
 
 % Minimim size in pixels of an IC.
-parameters.area_threshold=150;
+parameters.area_threshold=300;
 
-% Indicate if you want to z-score your ICs before regularizing (1 = yes, 0
-% = no).
-parameters.zscore_flag = 0; 
+% Indicate if you want to z-score your ICs before regularizing (true/false)
+parameters.zscore_flag = false; 
 
 %% Calculate ICs
 % Calculates ICs from SVD compressed data. Assumes one compressed dataset
 % per mouse.
 
 % output directory & filename
-parameters.dir_out = {parameters.dir_exper, 'spatial segmentation\raw ICs\', 'mouse_number', '\'};
-parameters.ouput_filename = {[num2str(parameters.num_sources) 'sources.mat']};
+parameters.dir_out = {[parameters.dir_exper 'spatial segmentation\raw ICs\'], 'mouse number', '\'};
+parameters.output_filename = {['sources' num2str(parameters.num_sources) '.mat']};
 
+true_false_vector = [true false];
+
+for i = 1: numel(true_false_vector)%true_false_vector
 % Use a gpu for this calculation? (t/f)
-parameters.use_gpu = true;
+parameters.use_gpu = true_false_vector(i);
 
 % (DON'T EDIT). Run code. 
 calculate_ICs(parameters); 
-
+end 
 %% Plot raw ICs
 % Determine how many subplots you want for displaying your individual ICs.
 parameters.plot_sizes=[10,10]; 
 
 % Input directory 
-parameters.dir_input_base = {parameters.dir_exper, 'spatial segmentation\raw ICs\', 'mouse number', '\'};
-parameters.input_filename = {'m', 'mouse number', ['_sources' num2str(parameters.num_sources) '.mat']};
+parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\raw ICs\'], 'mouse number', '\'};
+parameters.input_filename = {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.input_variable = {'sources'};
 
 % output directory
-parameters.dir_output_base = {parameters.dir_exper, 'spatial segmentation\raw ICs\', 'mouse number', '\'};
+parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\raw ICs\'], 'mouse number', '\'};
 parameters.output_filename = {['sources' num2str(parameters.num_sources)]};
 
 % Run code
@@ -109,15 +111,67 @@ plot_rawICs(parameters);
 %% Regularize ICs
 
 % Determine how many subplots you want for displaying your individual ICs.
-parameters.plot_sizes=[5,12]; 
+parameters.plot_sizes=[6,8]; 
+
+% Input directory 
+parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\raw ICs\'], 'mouse number', '\'};
+parameters.input_filename = {['sources' num2str(parameters.num_sources) '.mat']};
+parameters.input_variable = {'sources'};
+
+% output directory
+parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\regularized ICs_' num2str(parameters.area_threshold) 'pixels\'], 'mouse number', '\'};
+parameters.output_filename = {['sources' num2str(parameters.num_sources) '.mat']};
+parameters.output_variable = {'sources'};
 
 % (DON'T EDIT). Run code. 
 regularize_ICs(parameters);
 
 %% Remove IC artifacts (interactive)
-% (from locomotion paper):
-% remove_artifacts_from_catalogues.m
-% remove_artifacts_from_catalogues_finetune.m
+
+% Dimension different sources are in.
+parameters.sourcesDim = 3;
+
+% Dimension the pixels dimension of original data is in.
+parameters.originalSourcesPixelsDim = 2; 
+
+% Loop variables
+parameters.loop_list.iterators = {'mouse', {'mice_all(:).name'}, 'mouse_iterator'};
+parameters.loop_variables.mice_all = parameters.mice_all;
+
+% Input values
+parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\regularized ICs_' num2str(parameters.area_threshold) 'pixels\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
+parameters.loop_list.things_to_load.sources.variable= {'sources'};
+parameters.loop_list.things_to_load.sources.level = 'mouse';
+
+parameters.loop_list.things_to_load.indices_of_mask.dir = {[parameters.dir_exper 'masks/']};
+parameters.loop_list.things_to_load.indices_of_mask.filename= {'masks_m', 'mouse', '.mat'};
+parameters.loop_list.things_to_load.indices_of_mask.variable= {'indices_of_mask'}; 
+parameters.loop_list.things_to_load.indices_of_mask.level = 'mouse';
+
+parameters.loop_list.things_to_load.reference_image.dir = {[parameters.dir_exper 'representative images\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.reference_image.filename= {'reference_image.mat'};
+parameters.loop_list.things_to_load.reference_image.variable= {'reference_image'};
+parameters.loop_list.things_to_load.reference_image.level = 'mouse';
+
+parameters.loop_list.things_to_load.original_ICs.dir = {[parameters.dir_exper '\spatial segmentation\raw ICs\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.original_ICs.filename= {['sources' num2str(parameters.num_sources) '.mat']};
+parameters.loop_list.things_to_load.original_ICs.variable= {'sources'};
+parameters.loop_list.things_to_load.original_ICs.level = 'mouse';
+
+% (for any existing artifact removals)
+parameters.loop_list.things_to_load.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.sources_artifacts_removed.filename = {'sources.mat'};
+parameters.loop_list.things_to_load.sources_artifacts_removed.variable= {'sources'};
+parameters.loop_list.things_to_load.sources_artifacts_removed.level = 'mouse';
+
+% Output values
+parameters.loop_list.things_to_save.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
+parameters.loop_list.things_to_save.sources_artifacts_removed.filename = {'sources.mat'};
+parameters.loop_list.things_to_save.sources_artifacts_removed.variable= {'sources'};
+parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'mouse';
+
+RunAnalysis({@RemoveArtifacts}, parameters);
 
 %% Group ICs into catalogues (interactive)
 % (from locomotion paper):
