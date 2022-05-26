@@ -18,7 +18,7 @@ clear all;
 parameters.experiment_name='Random Motorized Treadmill';
 
 % Create the input directory of the SVD compressed datasets for each mouse
-parameters.dir_dataset=['Y:\Sarah\Analysis\Experiments\' parameters.experiment_name '\spatial segmentation\SVD compressions\'];
+parameters.dir_dataset=['Y:\Sarah\Analysis\Experiments\' parameters.experiment_name '\spatial segmentation\500 SVD components\SVD compressions\'];
 
 % Establish the format of the file names of compressed data. Each piece
 % needs to be a separate entry in a cell array. Put the string 'mouse', 'day',
@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(1:2);
+parameters.mice_all=parameters.mice_all(1);
 
 % ****************************************
 % ***Parameters.*** 
@@ -86,30 +86,25 @@ parameters.splitDomains = true;
 % per mouse.
 
 % output directory & filename
-parameters.dir_out = {[parameters.dir_exper 'spatial segmentation\raw ICs\'], 'mouse number', '\'};
+parameters.dir_out = {[parameters.dir_exper 'spatial segmentation\1000 SVD components\raw ICs\'], 'mouse number', '\'};
 parameters.output_filename = {['sources' num2str(parameters.num_sources) '.mat']};
 
-true_false_vector = [true false];
-
-for i = 1: numel(true_false_vector)%true_false_vector
 % Use a gpu for this calculation? (t/f)
-parameters.use_gpu = true_false_vector(i);
+parameters.use_gpu = true;
 
 % (DON'T EDIT). Run code. 
 calculate_ICs(parameters); 
-end 
+
 
 %% Plot raw ICs
-% Determine how many subplots you want for displaying your individual ICs.
-parameters.plot_sizes=[10,10]; 
 
 % Input directory 
-parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\raw ICs\'], 'mouse number', '\'};
+parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\200 SVD components\raw ICs\'], 'mouse number', '\'};
 parameters.input_filename = {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.input_variable = {'sources'};
 
 % output directory
-parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\raw ICs\'], 'mouse number', '\'};
+parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\200 SVD components\raw ICs\'], 'mouse number', '\'};
 parameters.output_filename = {['sources' num2str(parameters.num_sources)]};
 
 % Run code
@@ -117,16 +112,13 @@ plot_rawICs(parameters);
 
 %% Regularize ICs 
 
-% Determine how many subplots you want for displaying your individual ICs.
-%parameters.plot_sizes=[5,8]; 
-
 % Input directory 
-parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\raw ICs\'], 'mouse number', '\'};
+parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\200 SVD components\raw ICs\'], 'mouse number', '\'};
 parameters.input_filename = {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.input_variable = {'sources'};
 
 % output directory
-parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\regularized ICs_' num2str(parameters.area_threshold) 'pixels\'], 'mouse number', '\'};
+parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\200 SVD components\regularized ICs_' num2str(parameters.area_threshold) 'pixels\'], 'mouse number', '\'};
 parameters.output_filename = {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.output_variable = {'sources'};
 
@@ -153,7 +145,7 @@ parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
-parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\regularized ICs_' num2str(parameters.area_threshold) 'pixels\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs_' num2str(parameters.area_threshold) 'pixels\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.loop_list.things_to_load.sources.variable= {'sources'};
 parameters.loop_list.things_to_load.sources.level = 'mouse';
@@ -170,19 +162,19 @@ parameters.loop_list.things_to_load.reference_image.level = 'mouse';
 
 % [Right now, code assumes raw sources are in same file, I think it still
 % works if it's each source separate.]
-parameters.loop_list.things_to_load.original_sources.dir = {[parameters.dir_exper '\spatial segmentation\raw ICs\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.original_sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\raw ICs\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.original_sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.loop_list.things_to_load.original_sources.variable= {'sources'};
 parameters.loop_list.things_to_load.original_sources.level = 'mouse';
 
 % (for any existing artifact removals)
-parameters.loop_list.things_to_load.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts_removed\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.sources_artifacts_removed.filename = {'sources.mat'};
 parameters.loop_list.things_to_load.sources_artifacts_removed.variable= {'sources'};
 parameters.loop_list.things_to_load.sources_artifacts_removed.level = 'mouse';
 
 % Output values
-parameters.loop_list.things_to_save.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
+parameters.loop_list.things_to_save.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts_removed\'], 'mouse', '\'};
 parameters.loop_list.things_to_save.sources_artifacts_removed.filename = {'sources.mat'};
 parameters.loop_list.things_to_save.sources_artifacts_removed.variable= {'sources'};
 parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'mouse';
@@ -192,33 +184,34 @@ RunAnalysis({@RemoveArtifacts}, parameters);
 
 %% Plot resulting cleaned ICs
 % Always clear loop list first. 
+if isfield(parameters, 'loop_list')
 parameters = rmfield(parameters,'loop_list');
+end
 
 % Dimension different sources are in.
 parameters.sourcesDim = 3;
 
 % Loop variables
-parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'1:50'}, 'source_iterator'};
+parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input variables
-parameters.loop_list.things_to_load.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
-parameters.loop_list.things_to_load.sources_artifacts_removed.filename = {'sources.mat'};
-parameters.loop_list.things_to_load.sources_artifacts_removed.variable= {'sources'};
-parameters.loop_list.things_to_load.sources_artifacts_removed.level = 'mouse';
+parameters.loop_list.things_to_load.sources_overlay.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.sources_overlay.filename = {'sources.mat'};
+parameters.loop_list.things_to_load.sources_overlay.variable= {'sources.overlay'};
+parameters.loop_list.things_to_load.sources_overlay.level = 'mouse';
 
 % Output variables
-parameters.loop_list.things_to_save.sources_artifacts_removed_overlay.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
-parameters.loop_list.things_to_save.sources_artifacts_removed_overlay.filename = {'sources.fig'};
-parameters.loop_list.things_to_save.sources_artifacts_removed_overlay.level = 'mouse';
+parameters.loop_list.things_to_save.sources_overlay.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
+parameters.loop_list.things_to_save.sources_overlay.filename = {'sources_overlay.fig'};
+parameters.loop_list.things_to_save.sources_overlay.level = 'mouse';
 
-parameters.loop_list.things_to_save.sources_artifacts_removed_colormasks.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
-parameters.loop_list.things_to_save.sources_artifacts_removed_colormasks.filename = {'sources.fig'};
-parameters.loop_list.things_to_save.sources_artifacts_removed_colormasks.level = 'mouse';
+parameters.loop_list.things_to_save.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\artifacts_removed\'], 'mouse', '\'};
+parameters.loop_list.things_to_save.sources_artifacts_removed.filename = {'sources_overlay.fig'};
+parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'mouse';
 
 % For now, assume everything was saved as structures from RemoveArtifacts.m
-RunAnalysis({@PlotCleanICs}, parameters);
+RunAnalysis({@PlotSourceOverlays}, parameters);
 
 %% Group ICs into catalogues (interactive)
 % (from locomotion paper):
