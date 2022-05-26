@@ -71,8 +71,6 @@ function [parameters] = RemoveArtifacts(parameters)
     % Get the original source number for THIS source   
     original_source_iterator =originalSourceNumbers(source_number);
 
-    % Set up a holder for a variable number of dimensions
-    S = repmat({':'},1, ndims(sources));
 
     % Check to see if there was an existing artifacts removed structure. If
     % not, establish all fields.
@@ -101,20 +99,27 @@ function [parameters] = RemoveArtifacts(parameters)
     % Initialize matrix of artifact-removed sources. (Do each time so you
     % don't lose track of source_iterator and original_source_iterator).
     parameters.sources_artifacts_removed.sources = sources; 
+
+    % Apply any existing masks to sources_artifacts_removed
+    for ii = 1:numel(parameters.sources_artifacts_removed.artifact_masks)
+        existing_masks = parameters.sources_artifacts_removed.artifact_masks{ii};
+        % If there are pre-existing masks, apply them
+        existing_mask_indices = [];
+        for i=1:size(existing_masks,3)
+            mask_flat=existing_masks(:,:,i);
+            existing_mask_indices=[existing_mask_indices; find(mask_flat)]; 
+        end
+      
+        current_source = parameters.sources_artifacts_removed.sources(:,:, ii);
+        current_source(existing_mask_indices) = 0;
+        parameters.sources_artifacts_removed.sources(:,:, ii) = current_source;
+    end 
     
     % Get the source out from the variable dimensions
+    sources = parameters.sources_artifacts_removed.sources;
+    S = repmat({':'},1, ndims(sources));
     S{parameters.sourcesDim} = source_number;  
     source = sources(S{:});
-
-    % Apply any existing masks to source. 
-    existing_masks = parameters.sources_artifacts_removed.artifact_masks{source_number};
-    % If there are pre-existing masks, apply them
-    existing_mask_indices = [];
-    for i=1:size(existing_masks,3)
-        mask_flat=existing_masks(:,:,i);
-        existing_mask_indices=[existing_mask_indices; find(mask_flat)]; 
-    end
-    source(existing_mask_indices)=0;
     
     % Grab original source.
     S2 = repmat({':'},1, ndims(parameters.original_sources));
