@@ -38,8 +38,9 @@ parameters.masked_flag=1;
 
 % Directory of where the masks are saved. If not masked, can leave this
 % empty. If masked, use the cell array format as above. 
-parameters.dir_masked=[parameters.dir_exper 'masks\'];
-parameters.masks_name={parameters.dir_masked, 'masks_m', 'mouse number', '.mat' };
+parameters.dir_input_mask=[parameters.dir_exper 'masks\'];
+parameters.mask_filename={'masks_m', 'mouse number', '.mat' };
+parameters.mask_variable = {'indices_of_mask'};
 
 % Compressed component that represents [spatial dimension]. Will be 'S' or
 % 'V', with the number of (masked) pixels as one of the dimensions. Put in 
@@ -52,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(1);
+parameters.mice_all=parameters.mice_all(1:3);
 
 % ****************************************
 % ***Parameters.*** 
@@ -90,8 +91,14 @@ calculate_ICs(parameters);
 % Determine how many subplots you want for displaying your individual ICs.
 parameters.plot_sizes=[10,10]; 
 
+% Input directory 
+parameters.dir_input_base = {parameters.dir_exper, 'spatial segmentation\raw ICs\', 'mouse number', '\'};
+parameters.input_filename = {'m', 'mouse number', ['_sources' num2str(parameters.num_sources) '.mat']};
+parameters.input_variable = {'sources'};
+
 % output directory
-parameters.dir_out = {dir_exper, 'spatial segmentation\raw ICs\', 'mouse_number', '\'};
+parameters.dir_output_base = {parameters.dir_exper, 'spatial segmentation\raw ICs\', 'mouse number', '\'};
+parameters.output_filename = {['sources' num2str(parameters.num_sources)]};
 
 % Run code
 plot_rawICs(parameters); 
