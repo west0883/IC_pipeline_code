@@ -76,16 +76,28 @@ function [parameters] = RemoveArtifacts(parameters)
     % not, establish all fields.
     % This still works with looping through sources at RunAnalysis level b/c this is only called
     % before first source. 
-    if ~isfield(parameters, 'sources_artifacts_removed') || (isfield(parameters, 'sources_artifacts_removed') && isempty(parameters.sources_artifacts_removed))
+    if ~isfield(parameters, 'sources_artifacts_removed_recent') || (isfield(parameters, 'sources_artifacts_removed_recent') && isempty(parameters.sources_artifacts_removed_recent))
     
-       % Initialize list of indices to remove.
-       parameters.sources_artifacts_removed.indices_to_remove = cell(number_of_sources,1);
-       
-       % Initialize empty list of sources to remove
-       parameters.sources_artifacts_removed.sources_removed = [];
-       
-       % Initialize empty list of artifact masks. 
-       parameters.sources_artifacts_removed.artifact_masks = cell(number_of_sources,1);
+       % If there is no sources_artifacts_removed, check for if
+       % sources_artifacts_removed_old exists. If it does, use that as
+       % sources_artifacts_removed.
+       if isfield(parameters, 'sources_artifacts_removed_old')
+           parameters.sources_artifacts_removed = parameters.sources_artifacts_removed_old; 
+
+       else
+           % Otherwise, make sources_artifacts_removed empty
+           
+           % Initialize list of indices to remove.
+           parameters.sources_artifacts_removed.indices_to_remove = cell(number_of_sources,1);
+           
+           % Initialize empty list of sources to remove
+           parameters.sources_artifacts_removed.sources_removed = [];
+           
+           % Initialize empty list of artifact masks. 
+           parameters.sources_artifacts_removed.artifact_masks = cell(number_of_sources,1);
+       end
+    else
+        parameters.sources_artifacts_removed = parameters.sources_artifacts_removed_recent;
     end
     
     % Check if source was thrown out before, skip it.
@@ -182,6 +194,7 @@ function [parameters] = RemoveArtifacts(parameters)
             parameters.sources_artifacts_removed.overlay(indices) = i;  
         end 
     end
+    
 
     % ****Arrange figure****;
     
@@ -432,6 +445,10 @@ function [parameters] = RemoveArtifacts(parameters)
         indices = find(source_for_overlay > 0); 
         parameters.sources_artifacts_removed.overlay(indices) = i;  
     end 
+
+    % Make the current sources_artifacts_removed the "recent" version, as
+    % well. 
+    parameters.sources_artifacts_removed_recent = parameters.sources_artifacts_removed;
 
     % Ask if the user wants to work on next source.
     user_answer1= inputdlg(['Do you want to work on the next source? y = yes, n = no'], 'User input', 1,{'n'}, opts); 
