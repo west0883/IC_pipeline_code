@@ -5,7 +5,7 @@
 % Calculates ICs from SVD compressed data. Assumes one compressed dataset
 % per mouse.
 
-function []= calculate_ICs(days_all, dir_dataset, compressed_data_name, masks_name, dir_exper, spatial_component, num_sources, masked_flag, yDim, xDim) 
+function []= calculate_ICs(days_all, dir_dataset, compressed_data_name, dir_exper, spatial_component, num_sources) 
     
     % Set up input and output directories 
     dir_in=dir_dataset; 
@@ -42,33 +42,5 @@ function []= calculate_ICs(days_all, dir_dataset, compressed_data_name, masks_na
         
         % Save sources and B.
         save([dir_out 'm' mouse '_' num2str(num_sources) 'sources.mat'], 'sources', 'B');  
-        
-        % Reshape and permute for plotting 
-        
-        % If the data was masked, load mask and reshape specially
-        if masked_flag==1
-            % Find file name of masks
-            file_string_mask=CreateFileStrings(masks_name, mouse, [], []);
-            
-            % Load mask indices 
-            load(file_string_mask, 'indices_of_mask'); 
-            
-            % flip sources for inputting into FillMasks
-            sources=sources';
-            
-            % Fill in masks with FillMasks.m function
-            sources_filled=FillMasks(sources, indices_of_mask, yDim, xDim, pixel_dim);
-            
-            % Permute. 
-            sources_permute=permute(reshape(sources_filled, num_sources, yDim, xDim),[2 3 1]);
-        
-        % If no masks, just reshape and permute sources    
-        else
-            sources_permute=permute(reshape(sources, num_sources, yDim, xDim),[2 3 1]);
-        end 
-        
-        % Plot and save figures of sources. 
-        figure; for i=1:num_sources; subplot(7,8,i); imagesc(sources_permute(:,:,i)); end
-        savefig([dir_out 'm' mouse '_' num2str(num_sources) 'sources.fig']); 
     end
 end

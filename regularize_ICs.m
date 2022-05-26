@@ -4,7 +4,7 @@
 % Takes calculated ICs, thresholds them, and regularizes them into
 % contiguous areas 
 
-function []=regularize_ICs(days_all, dir_exper, amplitude_threshold, area_threshold, yDim, xDim, mask_flag, num_sources, plot_sizes)
+function []=regularize_ICs(days_all, dir_exper, amplitude_threshold, area_threshold, yDim, xDim, mask_flag, num_sources, plot_sizes, masks_name)
    
     % Extablish input and output directories 
     dir_in=[dir_exper 'ICs raw\']; 
@@ -16,7 +16,7 @@ function []=regularize_ICs(days_all, dir_exper, amplitude_threshold, area_thresh
        
         % Find mouse and display to user
         mouse=days_all(mousei).mouse;
-        disp(['mouse' mouse]); 
+        disp(['mouse ' mouse]); 
         
         % Make an output folder for this mouse 
         dir_out=[dir_out_base '\' mouse '\']; 
@@ -155,7 +155,7 @@ function []=regularize_ICs(days_all, dir_exper, amplitude_threshold, area_thresh
         % Plot the overlay. 
          figure;hold on; 
          imagesc(flipud(overlay)); colorbar;
-         title(['mouse ' mouse]); axis tight;        
+         title(['mouse ' mouse]); axis tight; axis square;        
          
          % Save the overlay fig
          savefig([dir_out 'regularized ICs_overlay.fig']); 
@@ -169,8 +169,9 @@ function []=regularize_ICs(days_all, dir_exper, amplitude_threshold, area_thresh
         for i=1:size(color_mask_domainssplit,3)
             subplot(subplot_rows,subplot_columns,i); 
             imagesc(color_mask_domainssplit(:,:,i)); 
+            %axis square;
         end
-        
+        suptitle(['mouse ' mouse]);
         % Save figure of individual  color maps.
         savefig([dir_out 'regularized ICs_color masks.fig']); 
     
