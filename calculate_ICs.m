@@ -46,22 +46,40 @@ function []= calculate_ICs(parameters)
             case 'V'
                 if parameters.use_gpu
                     V = gpuArray(V);
+                    S = gpuArray(S);
+
+                    % Run JADE ICA on GPU
                     B = jader_lsp_gpu([S*V'],num_sources);
+                    sources=B*[S*V'];
+
+                    % Return sources results to CPU numerival array.
+                    [sources, B] = gather(sources, B);
+
                 else
+                    % Run JADE ICA on CPU
                     B = jader_lsp([S*V'],num_sources);
+                    sources=B*[S*V'];
                 end
-                sources=B*[S*V'];
-                sources = gather(sources);
-                
+
             case 'U'
                  if parameters.use_gpu
+
+                    % Convert to GPU array. 
                     U = gpuArray(U);
+                    S = gpuArray(S);
+                    
+                    % Run JADE ICA on GPU
                     B=jader_lsp_gpu([U*S],num_sources);
+                    sources=B*[U*S];
+
+                    % Return sources results to CPU numerical array.
+                    [sources, B] = gather(sources, B);
+                
                  else 
+                     % Run JADE ICA on CPU
                      B = jader_lsp([U*S],num_sources);
+                     sources=B*[U*S];
                  end
-                 sources=B*[U*S];
-                 sources = gather(sources);
         end
       
         % Create output file path & filename
