@@ -73,10 +73,12 @@ function [parameters] = RemoveArtifacts(parameters)
     % Find the original source number of the IC you want. 
     original_source_iterator = parameters.sources.originalICNumber_domainsSplit(source_iterator);
     
-    % Reshape original sources. 
-    original_source = abs(parameters.original_ICs(:, original_source_iterator)); 
-   
-    % Put pixels of original ICs into first dimension
+    % Grab original source.
+    S2 = repmat({':'},1, ndims(parameters.original_ICs));
+    S2{parameters.originalSourcesDim} = original_source_iterator; 
+    original_source = abs(parameters.original_ICs(S2{:})); 
+
+    % Put pixels of original IC into first dimension
     original_source = permute(original_source,[parameters.originalSourcesPixelsDim setxor(parameters.originalSourcesPixelsDim, 1:ndims(original_source))]);
 
     % Fill the mask of the original source. 
@@ -107,7 +109,7 @@ function [parameters] = RemoveArtifacts(parameters)
     fig.WindowState = 'maximized';
     
     % Make figure title with all iterator values in it.
-    sgtitle([strjoin(parameters.values, ', ' ) ', source ' num2str(source_iterator)]);
+    sgtitle([strjoin(parameters.values(1:end/2), ', ' ) ', source ' num2str(source_iterator)]);
     
     % ** Context image **
     subplot(3,3,1);
