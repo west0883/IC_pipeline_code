@@ -222,6 +222,9 @@ function [parameters] = FindAtlasRegions(parameters)
         atlas_color_coded(parameters.atlas_masked == region_value) = regioni;
     end
 
+    % Put color coded atlas into parameters.
+    parameters.atlas_color_coded = atlas_color_coded;
+
     figure_best_fit = figure;
      
     % Get the colormap.
