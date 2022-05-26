@@ -195,6 +195,7 @@ function [parameters] = FindAtlasRegions(parameters)
     xlabel('source number'); ylabel('atlas region, left right');
     yticks([1:2:size(all_regions,1)]); yticklabels(tick_names);
     title('overlap');
+    sgtitle(['mouse ' parameters.values{1}]);
 
     % Make a figure with 3 subplots: the color-coded atlas, the ICs that
     % have a best fit with their color codes, the ICs that didn't fit
@@ -206,8 +207,7 @@ function [parameters] = FindAtlasRegions(parameters)
     atlas_color_coded = zeros(size(parameters.atlas_masked)); 
 
     % Change value to appropriate color-value.
-    region_colors = repelem(1:(number_of_regions/2), 2);
-
+ 
     for regioni = 1:number_of_regions
             
         % Get the value at of region so you can isolate the atlas
@@ -219,14 +219,17 @@ function [parameters] = FindAtlasRegions(parameters)
         end 
 
         % Convert
-        atlas_color_coded(parameters.atlas_masked == region_value) = region_colors(regioni);
+        atlas_color_coded(parameters.atlas_masked == region_value) = regioni;
     end
 
     figure_best_fit = figure;
-
+     
+    % Get the colormap.
+    mymap = repelem(jet(number_of_regions/2), 2, 1);
+ 
     % Draw atlas in first subplot; 
     subplot(1,2,1); 
-    imagesc(atlas_color_coded); colormap(jet);
+    imagesc(atlas_color_coded); colormap([1 1 1; mymap]); caxis([0 number_of_regions]);
     axis square;
 
     % Draw agreeing & disagreeing sources with color-coding.
@@ -247,26 +250,33 @@ function [parameters] = FindAtlasRegions(parameters)
    
              % Add to color coding, from best maching atlas
              % Get out best matching index
-             best_regions_color_coded(source > 0) = region_colors(parameters.metrics.best_fit.indices(sourcei).best); 
+             best_regions_color_coded(source > 0) = parameters.metrics.best_fit.indices(sourcei).best; 
 
         else
             % If no best fit, plot over the atlas as gray (store as -1 for
             % now); 
-            best_regions_color_coded(source > 0) = -1; 
+           % best_regions_color_coded(source > 0) = -1; 
+
+           % Plot with the overlap metric (so right now is just basically
+           % using the overlap metric)
+           best_regions_color_coded(source > 0) = parameters.metrics.best_fit.indices(sourcei).overlap; 
+
+
         end 
 
     end 
 
     % Plot agreeing regions.
     subplot(1, 2, 2); 
-    imagesc(best_regions_color_coded); caxis([-1 max(region_colors)]);
-    colormap([0.5 0.5 0.5; 1 1 1; jet(max(region_colors))]); 
+    imagesc(best_regions_color_coded); caxis([-1 number_of_regions]);
+    colormap([0.5 0.5 0.5; 1 1 1; jet(number_of_regions)]); 
     axis square;
+    sgtitle(['mouse ' parameters.values{1}]);
 % 
 %     % Plot not- agreeing regions.
 %     subplot(1, 3, 3); 
-%     imagesc(not_fit_regions); caxis([0 max(region_colors)]);
-%     colormap([0.5 0.5 0.5; 1 1 1; jet(max(region_colors))]);
+%     imagesc(not_fit_regions); caxis([0 number_of_regions]);
+%     colormap([0.5 0.5 0.5; 1 1 1; jet(number_of_regions)]);
 %     axis square;
 
     % Put figure handles into parameters structure.
