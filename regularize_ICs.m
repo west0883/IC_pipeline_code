@@ -115,19 +115,19 @@ function []=regularize_ICs(parameters)
                 
             end 
 
-            % If user wants to use conditional thresholding on SMALL components & there are LESS pixels than the area minimum, do zscoreing instead.
-            if isfield(parameters, 'small_component_conditional_zscore_flag') && parameters.small_component_conditional_zscore_flag && numel(find(map_thresholded > 0)) < parameters.minPixels
-
-                % Perform zscoring, ignoring NaNs
-                map_zscore =  (map - mean(map, 'all', 'omitnan'))/std(map, [], 'all', 'omitnan');
-               
-                % Threshold by zscore
-                map_holder = zeros(size(map));
-                indices = find(map_zscore > parameters.small_component_conditional_zscore_thresh);
-                map_holder(indices) = map_zscore(indices);
-                map_thresholded = map_holder;
-                
-            end 
+%             % If user wants to use conditional thresholding on SMALL components & there are LESS pixels than the area minimum, do zscoreing instead.
+%             if isfield(parameters, 'small_component_conditional_zscore_flag') && parameters.small_component_conditional_zscore_flag && numel(find(map_thresholded > 0)) < parameters.minPixels
+% 
+%                 % Perform zscoring, ignoring NaNs
+%                 map_zscore =  (map - mean(map, 'all', 'omitnan'))/std(map, [], 'all', 'omitnan');
+%                
+%                 % Threshold by zscore
+%                 map_holder = zeros(size(map));
+%                 indices = find(map_zscore > parameters.small_component_conditional_zscore_thresh);
+%                 map_holder(indices) = map_zscore(indices);
+%                 map_thresholded = map_holder;
+%                 
+%             end 
 
             % Clean -- remove spindly pieces
             [Reg, ~] = CleanClust(map_thresholded);
@@ -139,10 +139,29 @@ function []=regularize_ICs(parameters)
             % Find individual domains.
             [Reg, ~,DomId] = ClustReg(Reg,parameters.minPixels);
             
-            % If there was at least one domain that passed the area
-            % threshold,
-            if ~isempty(DomId)
+            % If no DomIds survived & user says to, try zscoring & repeat cleaning steps 
+            if isempty(DomId) && isfield(parameters, 'small_component_conditional_zscore_flag') && parameters.small_component_conditional_zscore_flag
                 
+                % Perform zscoring, ignoring NaNs
+                map_zscore =  (map - mean(map, 'all', 'omitnan'))/std(map, [], 'all', 'omitnan');
+               
+                % Threshold by zscore on original map
+                map_holder = zeros(size(map));
+                indices = find(map_zscore > parameters.small_component_conditional_zscore_thresh);
+                map_holder(indices) = map_zscore(indices);
+                map_thresholded = map_holder;
+
+                % Clean -- remove spindly pieces
+                [Reg, ~] = CleanClust(map_thresholded);
+          
+                % Find individual domains.
+                [Reg, ~,DomId] = ClustReg(Reg,parameters.minPixels);
+
+            end
+
+            % If there was at least one domain that passed the area
+            % threshold (first or sceond round)
+            if ~isempty(DomId) 
                 
                 % Increase the position of domains in same image counter
                 position_domainsTogether=position_domainsTogether+1;
