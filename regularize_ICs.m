@@ -4,7 +4,7 @@
 % Takes calculated ICs, thresholds them, and regularizes them into
 % contiguous areas 
 
-function []=regularize_ICs(days_all, dir_exper, amplitude_threshold, area_threshold, yDim, xDim, mask_flag, num_sources, plot_sizes, masks_name)
+function []=regularize_ICs(days_all, dir_exper, amplitude_threshold, area_threshold, yDim, xDim, mask_flag, num_sources, plot_sizes, masks_name, zscore_flag)
    
     % Extablish input and output directories 
     dir_in=[dir_exper 'ICs raw\']; 
@@ -25,24 +25,32 @@ function []=regularize_ICs(days_all, dir_exper, amplitude_threshold, area_thresh
         % Load ICA-calculated sources of mouse
         load([dir_in 'm' mouse '_' num2str(num_sources) 'sources.mat'], 'sources');
         
-        if mask_flag==1
+        % Flip the sources so each IC is its own column. (pixels x source
+        % number). 
+        sources=sources'; 
+        
+        % If the user wants to use zscoring (if zscore_flag is true)
+        if zscore_flag 
+            
+            % Perform zscoring (built-in "zscore" function works on each
+            % column independently).
+            sources=zscore(sources); 
+        end
+        
+        % If masked, (if mask_flag is "true")
+        if mask_flag 
             % Find file name of masks
             file_string_mask=CreateFileStrings(masks_name, mouse, [], []);
             
             % Load mask indices 
             load(file_string_mask, 'indices_of_mask'); 
             
-            % Flip the sources for input into FillMasks
-            sources=sources'; 
-            
             % Run the FillMasks.m function
             sources_reshaped=FillMasks(sources, indices_of_mask, yDim, xDim);
         
-        else 
-            % Flip the sources
-             sources=sources'; 
-             
-            % Reshape sources into images, if not masked
+        % If not masked,
+        else     
+            % Reshape sources into images, 
             sources_reshaped=reshape(sources, yDim, xDim, size(sources,2));
         end 
         
