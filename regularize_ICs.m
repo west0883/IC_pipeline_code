@@ -154,7 +154,7 @@ function []=regularize_ICs(parameters)
                     
                     % Concatenate
                     output_sources.color_mask_domainsSplit=cat(3, output_sources.color_mask_domainsSplit, color_mask_single); 
-                    output_sources.originalICNumber_domainsSplit = [output_sources.originalICNumber_domainsSplit, ici];
+                    %output_sources.originalICNumber_domainsSplit = [output_sources.originalICNumber_domainsSplit, ici];
                     output_sources.domain_mask_domainsSplit=cat(3, output_sources.domain_mask_domainsSplit, Reg0./domaini); 
                 
                 end
@@ -168,7 +168,7 @@ function []=regularize_ICs(parameters)
                 output_sources.color_mask_domainsTogether = cat(3, output_sources.color_mask_domainsTogether, color_mask_single); 
                 output_sources.domain_mask_domainsTogether = cat(3, output_sources.domain_mask_domainsTogether, Reg_binary);
                 output_sources.domain_mask_domainsTogether_numbered = cat(3, output_sources.domain_mask_domainsTogether_numbered, Reg);
-                output_sources.originalICNumber_domainsTogether =  [output_sources.originalICNumber_domainsTogether, ici]; 
+                %output_sources.originalICNumber_domainsTogether =  [output_sources.originalICNumber_domainsTogether, ici]; 
             end
         end
 
