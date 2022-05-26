@@ -11,7 +11,6 @@ function []=plot_rawICs(parameters)
     yDim = parameters.yDim;
     xDim = parameters.xDim;
     masked_flag = parameters.masked_flag; 
-    plot_sizes = parameters.plot_sizes;
     
     % Tell user where data is being saved. 
     disp(['data saved in ' parameters.dir_output_base{1}]); 
@@ -54,10 +53,19 @@ function []=plot_rawICs(parameters)
             sources_permute=permute(reshape(sources, num_sources, yDim, xDim),[2 3 1]);
         end 
         
+        % Get the number of subplots to use, if user put it in.
+        if isfield(parameters, 'plot_sizes')
+            subplot_rows=parameters.plot_sizes(1);
+            subplot_columns=parameters.plot_sizes(2); 
+        else
+            % Otherwise, get the optimized version.
+            [subplot_rows, subplot_columns] = OptimizeSubplotNumbers(num_sources);
+        end
+
         % Plot sources
         figure; 
         for i=1:num_sources 
-            subplot(plot_sizes(1), plot_sizes(2),i); 
+            subplot(subplot_rows, subplot_columns,i); 
             imagesc(abs(sources_permute(:,:,i))); 
             caxis([0 10]); 
             xticks([]);
