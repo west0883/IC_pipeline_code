@@ -4,18 +4,31 @@
 % Takes calculated ICs, thresholds them, and regularizes them into
 % contiguous areas 
 
-function []=regularize_ICs(days_all, dir_exper, amplitude_threshold, area_threshold, yDim, xDim, mask_flag, num_sources, plot_sizes, masks_name, zscore_flag)
-   
-    % Extablish input and output directories 
+function []=regularize_ICs(parameters)
+    
+    % Return parameters to individual names.
+    mice_all = parameters.mice_all;
+    dir_exper = parameters.dir_exper;
+    num_sources = parameters.num_sources;
+    amplitude_threshold = parameters.amplitude_threshold;
+    area_threshold = parameters.area_threshold;
+    yDim = parameters.yDim;
+    xDim = parameters.xDim;
+    masked_flag = parameters.masked_flag; 
+    plot_sizes = parameters.plot_sizes;
+    masks_name = parameters.masks_name;
+    zscore_flag = parameters.zscore_flag;
+    
+    % Establish input and output directories 
     dir_in=[dir_exper 'ICs raw\']; 
     dir_out_base=[dir_exper 'ICs cleaned']; 
     disp(['output saved in ' dir_out_base]);  
     
     % For each mouse
-    for mousei=1:size(days_all,2)   
+    for mousei=1:size(mice_all,2)   
        
         % Find mouse and display to user
-        mouse=days_all(mousei).mouse;
+        mouse=mice_all(mousei).mouse;
         disp(['mouse ' mouse]); 
         
         % Make an output folder for this mouse 
@@ -38,7 +51,7 @@ function []=regularize_ICs(days_all, dir_exper, amplitude_threshold, area_thresh
         end
         
         % If masked, (if mask_flag is "true")
-        if mask_flag 
+        if masked_flag 
             % Find file name of masks
             file_string_mask=CreateFileStrings(masks_name, mouse, [], []);
             

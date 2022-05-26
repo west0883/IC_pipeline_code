@@ -3,7 +3,18 @@
 % 9/16/21
 % Plots raw ICs from calculate_ICs.m for looking at/inspection.
 
-function []=plot_rawICs(days_all, masks_name, dir_exper, num_sources, masked_flag, yDim, xDim, plot_sizes)
+function []=plot_rawICs(parameters)
+    
+    % Return parameters to individual names.
+    mice_all = parameters.mice_all;
+    dir_exper = parameters.dir_exper;
+    num_sources = parameters.num_sources;
+    yDim = parameters.yDim;
+    xDim = parameters.xDim;
+    masked_flag = parameters.masked_flag; 
+    plot_sizes = parameters.plot_sizes;
+    masks_name = parameters.masks_name;
+
     % Establish folder name you're working with. 
     dir_out=[dir_exper 'ICs raw\'];
     
@@ -11,10 +22,10 @@ function []=plot_rawICs(days_all, masks_name, dir_exper, num_sources, masked_fla
     disp(['data saved in ' dir_out]); 
     
     % For each mouse
-    for mousei=1:size(days_all,2)  
+    for mousei=1:size(mice_all,2)  
         
         % Get the mouse name and display to user.
-        mouse=days_all(mousei).mouse;
+        mouse=mice_all(mousei).mouse;
 
         % Load the raw sources. 
         load([dir_out 'm' mouse '_' num2str(num_sources) 'sources.mat']); 
