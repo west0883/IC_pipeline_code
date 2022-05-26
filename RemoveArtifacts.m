@@ -322,24 +322,24 @@ function [parameters] = RemoveArtifacts(parameters)
     % Grab any existing masks
     existing_masks = parameters.sources_artifacts_removed.artifact_masks{source_number};
 
-%     % *** Ask if the whole IC should be thrown out.***
-%     % Arrange input dialogue options-- allowing for interaction with
-%     % figures
-%     opts.WindowStyle = 'normal';
-%     user_answer1= inputdlg(['Do you want to throw out this entire source as an artifact? y=yes, n=no'], 'User input', 1,{'n'}, opts); 
-%    
-%     %Convert the user's answer into a value
-%     answer1=user_answer1{1};
-%     
-%     % If the user's answer is y (being strict/difficult with this so
-%     % accidents are hard), mark it & move on to next source. Do nothing otherwise.
-%     if strcmp('y', answer1)
-%          
-%         % Note source for removal. 
-%         parameters.sources_artifacts_removed.indices_to_remove{source_number} = 'all'; 
-%         parameters.sources_artifacts_removed.sources_removed = [parameters.sources_artifacts_removed.sources_removed; source_number]; 
-% 
-%     else
+    % *** Ask if the whole IC should be thrown out.***
+    % Arrange input dialogue options-- allowing for interaction with
+    % figures
+    opts.WindowStyle = 'normal';
+    user_answer1= inputdlg(['Do you want to throw out this entire source as an artifact? y=yes, n=no'], 'User input', 1,{'n'}, opts); 
+   
+    %Convert the user's answer into a value
+    answer1=user_answer1{1};
+    
+    % If the user's answer is y (being strict/difficult with this so
+    % accidents are hard), mark it & move on to next source. Do nothing otherwise.
+    if strcmp('y', answer1)
+         
+        % Note source for removal. 
+        parameters.sources_artifacts_removed.indices_to_remove{source_number} = 'all'; 
+        parameters.sources_artifacts_removed.sources_removed = [parameters.sources_artifacts_removed.sources_removed; source_number]; 
+
+    else
         % ***** Ask user if they want to use a darkness threshold for removing
         % blood vessels. ****
         % Arrange input dialogue options-- allowing for interaction with
@@ -403,7 +403,7 @@ function [parameters] = RemoveArtifacts(parameters)
         parameters.sources_artifacts_removed.indices_to_remove{source_number} = indices_of_mask;
         source(indices_of_mask) = 0; 
         parameters.sources_artifacts_removed.sources(S{:}) = source;
-    %end
+    end
 
     close(fig); 
    
