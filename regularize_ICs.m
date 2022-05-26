@@ -6,34 +6,15 @@
 
 function []=regularize_ICs(parameters)
     
-    % Return parameters to individual names.
-    mice_all = parameters.mice_all;
-    dir_exper = parameters.dir_exper;
-    num_sources = parameters.num_sources;
-    amplitude_threshold = parameters.amplitude_threshold;
-    area_threshold = parameters.area_threshold;
-    yDim = parameters.yDim;
-    xDim = parameters.xDim;
-    masked_flag = parameters.masked_flag; 
-    plot_sizes = parameters.plot_sizes;
-    %masks_name = parameters.masks_name;
-    zscore_flag = parameters.zscore_flag;
-    
     % Establish input and output directories 
-    dir_in=[dir_exper 'ICs raw\']; 
-    dir_out_base=[dir_exper 'ICs cleaned']; 
-    disp(['output saved in ' dir_out_base]);  
+    disp(['output saved in ' parameters.dir_output_base{1}]);  
     
     % For each mouse
-    for mousei=1:size(mice_all,2)   
+    for mousei=1:size(parameters.mice_all,2)   
        
         % Find mouse and display to user
-        mouse=mice_all(mousei).name;
+        mouse=parameters.mice_all(mousei).name;
         disp(['mouse ' mouse]); 
-        
-        % Make an output folder for this mouse 
-        dir_out=[dir_out_base '\' mouse '\']; 
-        mkdir(dir_out);
         
         % Get the names of the ICA-calculated sources of mouse
         filename = CreateFileStrings([parameters.dir_input_base parameters.input_filename], mouse, [], [], [], false);
@@ -51,7 +32,7 @@ function []=regularize_ICs(parameters)
         end
         
         % If the user wants to use zscoring (if zscore_flag is true)
-        if zscore_flag 
+        if parameters.zscore_flag 
             
             % Perform zscoring (built-in "zscore" function works on each
             % column independently).
@@ -59,7 +40,7 @@ function []=regularize_ICs(parameters)
         end
         
         % If masked, (if mask_flag is "true")
-        if masked_flag 
+        if parameters.masked_flag 
             % Find file name of mask
             file_string_mask=CreateFileStrings([parameters.dir_input_mask parameters.mask_filename], mouse, [], [], false);
             
@@ -74,12 +55,12 @@ function []=regularize_ICs(parameters)
             %eval(['indices_of_mask = ' mask_variable ';']);
             
             % Run the FillMasks.m function
-            sources_reshaped=FillMasks(sources, indices_of_mask, yDim, xDim);
+            sources_reshaped=FillMasks(sources, indices_of_mask, parameters.yDim, parameters.xDim);
         
         % If not masked,
         else     
             % Reshape sources into images, 
-            sources_reshaped=reshape(sources, yDim, xDim, size(sources,2));
+            sources_reshaped=reshape(sources, parameters.yDim, parameters.xDim, size(sources,2));
         end 
         
         % Make holding variables for thresholded ICs-- with domains in same
@@ -116,12 +97,12 @@ function []=regularize_ICs(parameters)
             
             % Threshold the IC into a mask, with everything below the amplitude
             % threshold set to 0. 
-            map(map<amplitude_threshold)=0;
+            map(map<parameters.amplitude_threshold)=0;
             
             % Run the ClustReg function to keep only ICs that have at least
             % the area threshold number of contiguous pixels. (Code by
             % Laurentiu Popa, from 2018 ish.)
-            [Reg,FinSize,DomId] = ClustReg(map,area_threshold);
+            [Reg,FinSize,DomId] = ClustReg(map,parameters.area_threshold);
             
             % If there was at least one domain that passed the area
             % threshold,
@@ -134,7 +115,7 @@ function []=regularize_ICs(parameters)
                 
                 % Make a holding variable for Reg_id, which holds the imagess
                 % of each IC with each domain given a different number. 
-                Reg_id=zeros(yDim,xDim);
+                Reg_id=zeros(parameters.yDim, parameters.xDim);
                 
                 % For each domain,
                 for domaini=1:length(DomId)
@@ -190,9 +171,14 @@ function []=regularize_ICs(parameters)
  
         % Draw an overlay image of all domains masks together. 
         
-        % Initialize a blank overlay image. 
-        overlay=zeros(yDim, xDim);
-        
+        % Initialize a blank overlay image. If there's a mask, make things
+        % outside of it equal -1 for plotting
+        overlay=ones(parameters.yDim, parameters.xDim)*-1;
+        overlay(indices_of_mask) = 0; 
+
+        % Make a colormap that includes -1s as white. 
+        mymap = [1 1 1; 0.80 0.80 0.80; parula(size(output_sources.domain_mask_domainssplit,3))];
+
         % For each IC
         for ici=1:size(output_sources.domain_mask_domainssplit,3)
            % Find the IC indices
@@ -204,7 +190,7 @@ function []=regularize_ICs(parameters)
 
         % Plot the overlay. 
         figure;hold on; 
-        imagesc(flipud(overlay)); colorbar;
+        imagesc(flipud(overlay)); colormap(mymap); colorbar;
         title(['mouse ' mouse]); axis tight; axis square;    
 
         % Get overlay figure output name.
@@ -216,18 +202,28 @@ function []=regularize_ICs(parameters)
         % Save overlay
         savefig([dir_out filename_overlay]); 
   
-
         % Plot individual color maps 
         
         % Get the number of subplots to use.
-        subplot_rows=plot_sizes(1);
-        subplot_columns=plot_sizes(2); 
+        subplot_rows=parameters.plot_sizes(1);
+        subplot_columns=parameters.plot_sizes(2); 
+
+        % Make a colormap that includes -1s as white. 
+        mymap = [1 1 1; 0.80 0.80 0.80; parula(256)];
+
         figure; 
         for i=1:size(output_sources.color_mask_domainssplit,3)
-            subplot(subplot_rows,subplot_columns,i); 
-            imagesc(output_sources.color_mask_domainssplit(:,:,i)); 
-            axis square; xticks([]); yticks([]);
-            title([num2str(i) ', ' num2str(output_sources.originalICNumber_domainsSplit(i))]);
+             % Initialize a blank overlay image. If there's a mask, make things
+             % outside of it equal -1 for plotting
+             holder=ones(parameters.yDim, parameters.xDim)*-1;
+             holder(indices_of_mask) = 0; 
+             this_image = output_sources.color_mask_domainssplit(:,:,i);
+             color_indices = this_image > 0;
+             holder(color_indices) = this_image(color_indices);
+             subplot(subplot_rows,subplot_columns,i); 
+             imagesc(holder); colormap(mymap); caxis([-1 10]);
+             axis square; xticks([]); yticks([]);
+             title([num2str(i) ', ' num2str(output_sources.originalICNumber_domainsSplit(i))]);
         end
         sgtitle(['mouse ' mouse ', component nums: new, original']);
 
