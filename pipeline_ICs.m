@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(3);
+parameters.mice_all=parameters.mice_all(1:end);
 
 % ****************************************
 % ***Parameters.*** 
@@ -64,13 +64,6 @@ parameters.xDim=256;
 
 % The number of ICs you want to calculate. 
 parameters.num_sources=100;
-
-% For cleaning the ICs
-% Applies a (raw) threshold to the ICs.
-parameters.amplitude_threshold=3.5; 
-
-% Indicate if you want to z-score your ICs before regularizing (true/false)
-parameters.zscore_flag = false; 
 
 % Number of digits you want in your stack number names (default is 3).
 parameters.digitNumber = 2; 
@@ -114,7 +107,15 @@ parameters.output_filename = {['sources' num2str(parameters.num_sources)]};
 plot_rawICs(parameters); 
 
 %% Regularize ICs 
-parameters.conditional_zscore_flag = true;
+% For cleaning the ICs
+% Applies a (raw) threshold to the ICs.
+%parameters.amplitude_threshold = 3.5
+parameters.amplitude_threshold= 2.5; 
+
+% Indicate if you want to z-score your ICs before regularizing (true/false)
+parameters.zscore_flag = true; 
+
+parameters.conditional_zscore_flag = false;
 parameters.conditional_zscore_thresh = 1;
 parameters.maxPixels = 5000; 
 % Minimim size in pixels of an IC.
@@ -126,7 +127,7 @@ parameters.input_filename = {['sources' num2str(parameters.num_sources) '.mat']}
 parameters.input_variable = {'sources'};
 
 % output directory
-parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs ' num2str(parameters.area_threshold) ' conditional pixels\'], 'mouse number', '\'};
+parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs ' num2str(parameters.area_threshold) ' zscore only ' num2str(parameters.amplitude_threshold) '\'], 'mouse number', '\'};
 parameters.output_filename = {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.output_variable = {'sources'};
 
