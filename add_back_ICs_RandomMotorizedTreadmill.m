@@ -781,8 +781,8 @@ for mousei = 1:size(mice_all,2)
         sources.overlay = overlay;
 
         % Save
-        mkdir(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback storage\' mouse '\']);
-        save(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback storage\' mouse '\sources.mat'], 'sources');
+        mkdir(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback staging\' mouse '\']);
+        save(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback staging\' mouse '\sources.mat'], 'sources');
     
         % *** Now do it all for the regularized folder
         load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\regularized ICs 150 amp 3.5 two conditionals small 2.5 large 1\' mouse '\sources100.mat']);

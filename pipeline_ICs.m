@@ -226,7 +226,7 @@ end
 % regularization process. Wil run as a script, saves to end of list of
 % regularizing ICs so it doesn't disrupt any previously saved artifact
 % removals.
-% Puts ouput in "post addback storage" folder to keep you from overwriting
+% Puts ouput in "post addback staging" folder to keep you from overwriting
 % any artifact removal you want to do to the new sources. Have to copy the
 % output into a new folder manually to call it in the next steps.
 
