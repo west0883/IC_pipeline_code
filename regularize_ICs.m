@@ -89,42 +89,55 @@ function []=regularize_ICs(parameters)
             % positve or very negative). 
             map=abs(map); 
 
-            % If the user wants to use zscoring (if zscore_flag is true)
-            if parameters.zscore_flag 
-                
-                % Perform zscoring, ignoring NaNs
-                map =  (map - mean(map, 'all', 'omitnan'))/std(map, [], 'all', 'omitnan');
-            end
-            
+%             % If the user wants to use zscoring (if zscore_flag is true)
+%             if parameters.zscore_flag 
+%                 
+%                 % Perform zscoring, ignoring NaNs
+%                 map =  (map - mean(map, 'all', 'omitnan'))/std(map, [], 'all', 'omitnan');
+%             end
+%             
             % Threshold the IC into a mask, with everything below the amplitude
             % threshold set to 0. 
             map_thresholded = map;
             map_thresholded(map<parameters.amplitude_threshold) = 0;
 
-            % If there are more pixels than the conditional threshold
-            if parameters.conditional_zscore_flag && numel(find(map_thresholded > 0)) > parameters.maxPixels
+            % If the user want to use conditional thresholding on large components & there are MORE pixels than the conditional threshold
+            if isfield(parameters, 'large_component_conditional_zscore_flag') && parameters.large_component_conditional_zscore_flag && numel(find(map_thresholded > 0)) > parameters.maxPixels
 
                 % Perform zscoring, ignoring NaNs
                 map_zscore =  (map - mean(map, 'all', 'omitnan'))/std(map, [], 'all', 'omitnan');
                
+                % Threshold by zscore
                 map_holder = zeros(size(map));
-                indices = find(map_zscore > parameters.conditional_zscore_thresh);
+                indices = find(map_zscore > parameters.large_component_conditional_zscore_thresh);
                 map_holder(indices) = map_zscore(indices);
-
-            else
-                map_holder = map_thresholded;
+                map_thresholded = map_holder;
                 
             end 
-            
+
+            % If user wants to use conditional thresholding on SMALL components & there are LESS pixels than the area minimum, do zscoreing instead.
+            if isfield(parameters, 'small_component_conditional_zscore_flag') && parameters.small_component_conditional_zscore_flag && numel(find(map_thresholded > 0)) < parameters.minPixels
+
+                % Perform zscoring, ignoring NaNs
+                map_zscore =  (map - mean(map, 'all', 'omitnan'))/std(map, [], 'all', 'omitnan');
+               
+                % Threshold by zscore
+                map_holder = zeros(size(map));
+                indices = find(map_zscore > parameters.small_component_conditional_zscore_thresh);
+                map_holder(indices) = map_zscore(indices);
+                map_thresholded = map_holder;
+                
+            end 
+
             % Clean -- remove spindly pieces
-            [Reg, ~] = CleanClust(map_holder);
+            [Reg, ~] = CleanClust(map_thresholded);
             
             % Run the ClustReg function to keep only ICs that have at least
             % the area threshold number of contiguous pixels. (Code by
             % Laurentiu Popa, from 2018 ish.)
 
             % Find individual domains.
-            [Reg, ~,DomId] = ClustReg(Reg,parameters.area_threshold);
+            [Reg, ~,DomId] = ClustReg(Reg,parameters.minPixels);
             
             % If there was at least one domain that passed the area
             % threshold,

@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(1:end);
+parameters.mice_all=parameters.mice_all(2);
 
 % ****************************************
 % ***Parameters.*** 
@@ -109,17 +109,21 @@ plot_rawICs(parameters);
 %% Regularize ICs 
 % For cleaning the ICs
 % Applies a (raw) threshold to the ICs.
-%parameters.amplitude_threshold = 3.5
-parameters.amplitude_threshold= 2.5; 
+
+parameters.amplitude_threshold = 3.5;
+
+% Minimim size in pixels of an IC.
+parameters.minPixels = 300;
 
 % Indicate if you want to z-score your ICs before regularizing (true/false)
-parameters.zscore_flag = true; 
+%parameters.zscore_flag = false;
 
-parameters.conditional_zscore_flag = false;
-parameters.conditional_zscore_thresh = 1;
+parameters.large_component_conditional_zscore_flag = true;
 parameters.maxPixels = 5000; 
-% Minimim size in pixels of an IC.
-parameters.area_threshold= 300;
+parameters.large_component_conditional_zscore_thresh = 1;
+
+parameters.small_component_conditional_zscore_flag = true;
+parameters.small_component_conditional_zscore_thresh = 2.5;
 
 % Input directory 
 parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\500 SVD components\raw ICs\'], 'mouse number', '\'};
@@ -127,7 +131,7 @@ parameters.input_filename = {['sources' num2str(parameters.num_sources) '.mat']}
 parameters.input_variable = {'sources'};
 
 % output directory
-parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs ' num2str(parameters.area_threshold) ' zscore only ' num2str(parameters.amplitude_threshold) '\'], 'mouse number', '\'};
+parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs ' num2str(parameters.minPixels) ' two conditionals ' num2str(parameters.amplitude_threshold) '\'], 'mouse number', '\'};
 parameters.output_filename = {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.output_variable = {'sources'};
 
@@ -154,7 +158,7 @@ parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
-parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs_' num2str(parameters.area_threshold) 'pixels\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs_' num2str(parameters.minPixels) 'pixels\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.loop_list.things_to_load.sources.variable= {'sources'};
 parameters.loop_list.things_to_load.sources.level = 'mouse';
