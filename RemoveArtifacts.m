@@ -122,19 +122,27 @@ function [parameters] = RemoveArtifacts(parameters)
     source = sources(S{:});
     
     % Grab original source.
-    S2 = repmat({':'},1, ndims(parameters.original_sources));
-    S2{parameters.originalSourcesDim} = original_source_iterator; 
-    original_source = abs(parameters.original_sources(S2{:})); 
-
-    % Put pixels of original IC into first dimension
-    original_source = permute(original_source,[parameters.originalSourcesPixelsDim setxor(parameters.originalSourcesPixelsDim, 1:ndims(original_source))]);
+    % If original_source_iterator is NaN (can happen if added back ICs were
+    % from multiple raw sources added together), skip
+    if ~isnan(original_source_iterator)
+        S2 = repmat({':'},1, ndims(parameters.original_sources));
+        S2{parameters.originalSourcesDim} = original_source_iterator; 
+        original_source = abs(parameters.original_sources(S2{:})); 
+    
+        % Put pixels of original IC into first dimension
+        original_source = permute(original_source,[parameters.originalSourcesPixelsDim setxor(parameters.originalSourcesPixelsDim, 1:ndims(original_source))]);
+    
+        % If there was a mask loaded, 
+        if isfield(parameters, 'indices_of_mask')
+            
+            % Fill the mask of the original source. 
+            original_source = FillMasks(original_source, parameters.indices_of_mask, size(source,1), size(source,2));
+        end 
+    end 
 
     % If there was a mask loaded, 
     if isfield(parameters, 'indices_of_mask')
         
-        % Fill the mask of the original source. 
-        original_source = FillMasks(original_source, parameters.indices_of_mask, size(source,1), size(source,2));
-
         % Apply the mask to the reference image
         holder = NaN(size(parameters.reference_image));
         holder(parameters.indices_of_mask) = parameters.reference_image(parameters.indices_of_mask);
@@ -185,7 +193,13 @@ function [parameters] = RemoveArtifacts(parameters)
     small_subplots_fields = {'reference_image'; 'reference_image'; 'original_sources'};
     for i = 1:numel(small_subplots_fields)
         if isfield(parameters, small_subplots_fields{i})
-            small_subplots = small_subplots + 1; 
+
+            % Don't count original source plot if the iterator is NaN.
+            if strcmp(small_subplots_fields{i},'original_sources') && isnan(original_source_iterator)
+
+            else
+                small_subplots = small_subplots + 1; 
+            end 
         end
     end
 
@@ -274,7 +288,9 @@ function [parameters] = RemoveArtifacts(parameters)
     
    
     % ** Draw a figure showing the original, un-thresholded source. ** 
-    if isfield(parameters, 'original_sources')
+    % If original_source_iterator is NaN (can happen if added back ICs were
+    % from multiple raw sources added together), skip
+    if isfield(parameters, 'original_sources') && ~isnan(original_source_iterator)
 
         % Increase counter of what small subplot you're on;
         small_subplot_counter = small_subplot_counter + 1; 
