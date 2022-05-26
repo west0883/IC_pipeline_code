@@ -31,13 +31,13 @@ function []=regularize_ICs(parameters)
             sources = permute(sources, [2 source_dimension setxor([2 source_dimension], 1:ndims(sources))]);
         end
         
-        % If the user wants to use zscoring (if zscore_flag is true)
-        if parameters.zscore_flag 
-            
-            % Perform zscoring (built-in "zscore" function works on each
-            % column independently).
-            sources=zscore(sources); 
-        end
+%         % If the user wants to use zscoring (if zscore_flag is true)
+%         if parameters.zscore_flag 
+%             
+%             % Perform zscoring (built-in "zscore" function works on each
+%             % column independently).
+%             sources=zscore(sources); 
+%         end
         
         % If masked, (if mask_flag is "true")
         if parameters.masked_flag 
@@ -99,10 +99,25 @@ function []=regularize_ICs(parameters)
             % Threshold the IC into a mask, with everything below the amplitude
             % threshold set to 0. 
             map_thresholded = map;
-            map_thresholded(map<parameters.amplitude_threshold)=0;
+            map_thresholded(map<parameters.amplitude_threshold) = 0;
+
+            % If there are more pixels than the conditional threshold
+            if parameters.conditional_zscore_flag && numel(find(map_thresholded > 0)) > parameters.maxPixels
+
+                % Perform zscoring, ignoring NaNs
+                map_zscore =  (map - mean(map, 'all', 'omitnan'))/std(map, [], 'all', 'omitnan');
+               
+                map_holder = zeros(size(map));
+                indices = find(map_zscore > parameters.conditional_zscore_thresh);
+                map_holder(indices) = map_zscore(indices);
+
+            else
+                map_holder = map_thresholded;
+                
+            end 
             
             % Clean -- remove spindly pieces
-            [Reg, ~] = CleanClust(map_thresholded);
+            [Reg, ~] = CleanClust(map_holder);
             
             % Run the ClustReg function to keep only ICs that have at least
             % the area threshold number of contiguous pixels. (Code by
@@ -137,6 +152,7 @@ function []=regularize_ICs(parameters)
                     % 0.
                     Reg0(Reg0~=id0)=0;
                     
+
                     % Clean -- remove spindly pieces again
                     [Reg0, ~] = CleanClust(Reg0);
                      
@@ -266,7 +282,7 @@ function []=regularize_ICs(parameters)
              subplot(subplot_rows,subplot_columns,i); 
              imagesc(holder); colormap(mymap); caxis([-1 10]);
              axis square; xticks([]); yticks([]);
-             title([num2str(i) ', ' num2str(output_sources.originalICNumber_domainsSplit(i))]);
+            % title([num2str(i) ', ' num2str(output_sources.originalICNumber_domainsSplit(i))]);
         end
         sgtitle(['mouse ' mouse ', component nums: new, original']);
 

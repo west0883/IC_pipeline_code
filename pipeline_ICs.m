@@ -38,7 +38,7 @@ parameters.masked_flag=1;
 
 % Directory of where the masks are saved. If not masked, can leave this
 % empty. If masked, use the cell array format as above. 
-parameters.dir_input_mask=[parameters.dir_exper 'masks\'];
+parameters.dir_input_mask=[parameters.dir_exper 'preprocessing\masks\'];
 parameters.mask_filename={'masks_m', 'mouse number', '.mat' };
 parameters.mask_variable = {'indices_of_mask'};
 
@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(1);
+parameters.mice_all=parameters.mice_all(3);
 
 % ****************************************
 % ***Parameters.*** 
@@ -68,9 +68,6 @@ parameters.num_sources=100;
 % For cleaning the ICs
 % Applies a (raw) threshold to the ICs.
 parameters.amplitude_threshold=3.5; 
-
-% Minimim size in pixels of an IC.
-parameters.area_threshold=300;
 
 % Indicate if you want to z-score your ICs before regularizing (true/false)
 parameters.zscore_flag = false; 
@@ -117,14 +114,19 @@ parameters.output_filename = {['sources' num2str(parameters.num_sources)]};
 plot_rawICs(parameters); 
 
 %% Regularize ICs 
+parameters.conditional_zscore_flag = true;
+parameters.conditional_zscore_thresh = 1;
+parameters.maxPixels = 5000; 
+% Minimim size in pixels of an IC.
+parameters.area_threshold= 300;
 
 % Input directory 
-parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\200 SVD components\raw ICs\'], 'mouse number', '\'};
+parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\500 SVD components\raw ICs\'], 'mouse number', '\'};
 parameters.input_filename = {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.input_variable = {'sources'};
 
 % output directory
-parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\200 SVD components\regularized ICs_' num2str(parameters.area_threshold) 'pixels\'], 'mouse number', '\'};
+parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs ' num2str(parameters.area_threshold) ' conditional pixels\'], 'mouse number', '\'};
 parameters.output_filename = {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.output_variable = {'sources'};
 
