@@ -83,23 +83,23 @@ function [parameters] = FindAtlasRegions(parameters)
     parameters.metrics.comparison_matrix = NaN(number_of_regions, number_of_sources, 2);
 
     % Get list of what the sources would've been called in regularized ICs
-    IC_old_list = 1:size(parameters.sources.color_mask_domainsSplit, 3);
-    IC_old_list(parameters.sources_artifacts_removed.sources_removed) = [];
+    %IC_old_list = 1:size(parameters.sources_artifacts_removed.sources, 3);
+   % IC_old_list(parameters.sources_artifacts_removed.sources_removed) = [];
 
     % For each source, 
     for sourcei = 1:number_of_sources
 
         % Convert to nubmer that it would've been in the regularized ICs
-        source_index = IC_old_list(sourcei);
+        %source_index = IC_old_list(sourcei);
         
    
         % Pull out source
             % Set up abstractable dimensions
-            S = repmat({':'},1, ndims(parameters.sources.color_mask_domainsSplit));
-            S{parameters.sourcesDim} = source_index; 
+            S = repmat({':'},1, ndims(parameters.sources_artifacts_removed.sources));
+            S{parameters.sourcesDim} = sourcei; 
 
             % Get out source
-            source = parameters.sources.color_mask_domainsSplit(S{:});
+            source = parameters.sources_artifacts_removed.sources(S{:});
 
             % Make any NaNs in source (usually outside the mask) into 0 to
             % avoid match issues.
