@@ -41,10 +41,11 @@ function []= calculate_ICs(parameters)
         load(file_string, 'S', spatial_component);
         
         % Depending on which component is the spatial component, calculate 
-        % the sources accordingly. See if user wants to use a gpu.
+        % the sources accordingly. 
         switch spatial_component
             case 'V'
-                if parameters.use_gpu
+                % See if user wants to use a gpu.
+                if isfield(parameters, 'use_gpu') && parameters.use_gpu
                     V = gpuArray(V);
                     S = gpuArray(S);
 
@@ -62,7 +63,8 @@ function []= calculate_ICs(parameters)
                 end
 
             case 'U'
-                 if parameters.use_gpu
+                 % See if user wants to use a gpu.
+                 if isfield(parameters, 'use_gpu') && parameters.use_gpu
 
                     % Convert to GPU array. 
                     U = gpuArray(U);
