@@ -33,14 +33,14 @@ function [parameters] = RemoveArtifacts(parameters)
         % If they want to split
 
         % Grab sources
-        sources = parameters.sources.color_mask_domainssplit;
+        sources = parameters.sources.color_mask_domainsSplit;
         
         % Define source_iterator based on location in keywords/values, use it for rest of analysis.
         source_iterator = parameters.values{find(contains(parameters.keywords,'source_iterator'))};
         
         % Find the original source numbers of the ICs
         originalSourceNumbers = parameters.sources.originalICNumber_domainsSplit';
-        
+
     end
 
     % Get the original source number for THIS source   
@@ -317,7 +317,8 @@ function [parameters] = RemoveArtifacts(parameters)
     % Convert the user's answer into a value
     answer1=user_answer1{1};
 
-    % If user didn't want to continue to next source, set continue flag to false
+    % If user didn't want to continue to next source, set continue flag to
+    % false (need to assume sources is the lowest level of iteration for now)
     if strcmp(answer1, 'y')
         parameters.continue_flag{end} = true;
     else    
@@ -327,24 +328,38 @@ function [parameters] = RemoveArtifacts(parameters)
         parameters.save_now = true;
     end
     
-    % If this was the max source number or user said they didn't want to work on next source, ask user if they want to work on next dataset; Don't ask if there aren't multiple levels of iterators. 
-    if source_iterator == number_of_sources && numel(parameters.continue_flag) > 1 || ~strcmp(answer1, 'y')
-        user_answer1= inputdlg(['Do you want to work on the next data set? y = yes, n = no'], 'User input', 1,{'n'}, opts); 
+    % If this was the max source number or user said they didn't want to 
+    % work on next source, ask user if they want to work on next dataset; 
+    if source_iterator == number_of_sources || ~strcmp(answer1, 'y')
+       
+        %  Don't ask if there aren't multiple levels of iterators,
+        if numel(parameters.continue_flag) > 1
+            
+            % Don't ask if you're already on the last data set, (need to
+            % assume sources is the lowest level of iteration for now)
+            next_iterator_up = parameters.values{end-2};
+            next_max_iteration = parameters.maxIterations.numbers_only(end-1);
     
-        % Convert the user's answer into a value
-        answer1=user_answer1{1};
-        
-        % If user didn't want to continue to next dataset, set continue flag one level up to false
-        if strcmp(answer1, 'y')
-            parameters.continue_flag{end-1} = true;
-        else    
-            parameters.continue_flag {end-1}= false;
+            if next_iterator_up >= next_max_iteration
 
-            % Tell RunAnalysis to save this iteration-- will include all
-            % recursive edits to parameters structure
-            parameters.save_now = true;
+                user_answer1= inputdlg(['Do you want to work on the next data set? y = yes, n = no'], 'User input', 1,{'n'}, opts); 
+            
+                % Convert the user's answer into a value
+                answer1=user_answer1{1};
+                
+                % If user didn't want to continue to next dataset, set continue flag one level up to false
+                if strcmp(answer1, 'y')
+                    parameters.continue_flag{end-1} = true;
+                else    
+                    parameters.continue_flag {end-1}= false;
+        
+                    % Tell RunAnalysis to save this iteration-- will include all
+                    % recursive edits to parameters structure
+                    parameters.save_now = true;
+                end
+            end 
         end
-    end 
+    end
 end 
 
 function [subplots, subplot_column, subplot_large_column] = calculate_subplots(small_subplots, small_subplot_counter)
