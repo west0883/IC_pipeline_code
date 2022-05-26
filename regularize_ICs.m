@@ -82,7 +82,7 @@ function []=regularize_ICs(parameters)
         output_sources.originalICNumber_domainsTogether = [];
 
         % For each source (IC)
-        for ici=1:size(sources_reshaped,3)
+        for ici = 1:size(sources_reshaped,3)
             
             % Take the relevant source (IC), call it "map"
             map=sources_reshaped(:,:,ici); 
