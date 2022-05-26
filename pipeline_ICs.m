@@ -652,3 +652,32 @@ for i = 1:size(mice_all(:))
     xticks([]); yticks([]);
     savefig(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\manual assignments\sources_reordered_allmice.fig'])
 end 
+
+%% Apply masks to sources.
+% Always clear loop list first. 
+if isfield(parameters, 'loop_list')
+parameters = rmfield(parameters,'loop_list');
+end
+
+% Loop variables; iterate through mice, sources
+parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator'};
+parameters.loop_variables.mice_all = parameters.mice_all;
+
+% Input
+parameters.loop_list.things_to_load.indices_of_mask.dir = {[parameters.dir_exper 'preprocessing\masks\']};
+parameters.loop_list.things_to_load.indices_of_mask.filename= {'masks_m', 'mouse', '.mat'};
+parameters.loop_list.things_to_load.indices_of_mask.variable= {'indices_of_mask'}; 
+parameters.loop_list.things_to_load.indices_of_mask.level = 'mouse';
+
+parameters.loop_list.things_to_load.data.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\manual assignments\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.data.filename = {'sources_reordered.mat'};
+parameters.loop_list.things_to_load.data.variable= {'sources'};
+parameters.loop_list.things_to_load.data.level = 'mouse';
+
+% Output
+parameters.loop_list.things_to_save.data_masked.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\manual assignments\'], 'mouse', '\'};
+parameters.loop_list.things_to_save.data_masked.filename = {'sources_reordered_masked.mat'};
+parameters.loop_list.things_to_save.data_masked.variable= {'sources_masked'};
+parameters.loop_list.things_to_save.data_masked.level = 'mouse';
+
+RunAnalysis({@ApplyMasks}, parameters);
