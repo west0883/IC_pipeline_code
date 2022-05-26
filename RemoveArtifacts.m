@@ -115,7 +115,7 @@ function [parameters] = RemoveArtifacts(parameters)
         parameters.sources_artifacts_removed.sources(:,:, ii) = current_source;
     end 
     
-    % Get the source out from the variable dimensions
+    % Get the source (with the previously drawn removed artifacts) out from the variable dimensions
     sources = parameters.sources_artifacts_removed.sources;
     S = repmat({':'},1, ndims(sources));
     S{parameters.sourcesDim} = source_number;  
