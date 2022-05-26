@@ -168,7 +168,7 @@ parameters.originalSourcesDim = 1;
 
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'1:70'}, 'source_iterator'};
+                                  'source', {'40:70'}, 'source_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
@@ -197,16 +197,16 @@ parameters.loop_list.things_to_load.original_sources.variable= {'sources'};
 parameters.loop_list.things_to_load.original_sources.level = 'mouse';
 
 % (for any existing artifact removals)
-parameters.loop_list.things_to_load.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\'], 'mouse', '_first mask version\'};
-parameters.loop_list.things_to_load.sources_artifacts_removed.filename = {'sources.mat'};
-parameters.loop_list.things_to_load.sources_artifacts_removed.variable= {'sources'};
-parameters.loop_list.things_to_load.sources_artifacts_removed.level = 'mouse';
+parameters.loop_list.things_to_load.sources_artifacts_removed_old.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\'], 'mouse', '_first mask version\'};
+parameters.loop_list.things_to_load.sources_artifacts_removed_old.filename = {'sources.mat'};
+parameters.loop_list.things_to_load.sources_artifacts_removed_old.variable= {'sources'};
+parameters.loop_list.things_to_load.sources_artifacts_removed_old.level = 'mouse';
 
 % Output values
 parameters.loop_list.things_to_save.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\'], 'mouse', '_first mask version\'};
 parameters.loop_list.things_to_save.sources_artifacts_removed.filename = {'sources.mat'};
 parameters.loop_list.things_to_save.sources_artifacts_removed.variable= {'sources'};
-parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'mouse';
+parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'source';
 
 RunAnalysis({@RemoveArtifacts}, parameters);
 
