@@ -70,6 +70,16 @@ function [parameters] = RemoveArtifacts(parameters)
     S{parameters.sourcesDim} = source_iterator;  
     source = sources(S{:});
 
+    % Apply any existing masks to source. 
+    existing_masks = parameters.sources_artifacts_removed.artifact_masks{source_iterator};
+    % If there are pre-existing masks, apply them
+    existing_mask_indices = [];
+    for i=1:size(existing_masks,3)
+        mask_flat=existing_masks(:,:,i);
+        existing_mask_indices=[existing_mask_indices; find(mask_flat)]; 
+    end
+    source(existing_mask_indices)=0;
+
     % Find the original source number of the IC you want. 
     original_source_iterator = parameters.sources.originalICNumber_domainsSplit(source_iterator);
     
