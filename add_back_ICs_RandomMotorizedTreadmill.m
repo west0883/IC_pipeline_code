@@ -693,8 +693,13 @@ for mousei = 1:size(mice_all,2)
             % If not empty
             if ~isempty(add_back_all{mousei}{ici})
 
+            
+
+                % Threshold & overlay 
+                new_source = add_back_all{mousei}{ici} > 0;
+                [new_source, ~] = CleanClust(new_source);
+               
                 % Add new source to overlay
-                new_source = add_back_all{mousei}{ici};
                 overlay(find(new_source > 0)) = ici + number_ics;
             end
 
@@ -711,9 +716,10 @@ savefig('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmen
 
 %% Actually add back these ICs to artifacts removed matrices
 % *****DO ONLY ONCE*****
+% Applies CLeanClust function
 % load mice_all
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\mice_all.mat');
-
+% App
 % For each mouse, 
 for mousei = 1:size(mice_all,2)
     mouse = mice_all(mousei).name;
@@ -748,17 +754,20 @@ for mousei = 1:size(mice_all,2)
                     sources.originalICNumbers = [sources.originalICNumbers; original_IC_numbers_all{mousei}{ici}];
                 end 
 
+                % Threshold & clean
+                new_source = add_back_all{mousei}{ici} > 0;
+                [new_source, ~] = CleanClust(new_source);
+
                 % Update overlay. 
             
                     % Add new source to overlay
-                    new_source = add_back_all{mousei}{ici};
                     overlay(find(new_source > 0)) = ici + number_ics;
 
                 % Add the source itself in. 
                    
                     % Multiply mask by raw source
                     try
-                    color_mask = add_back_all{mousei}{ici} .* raw_ICs_all{mousei}{ici};
+                    color_mask = new_source .* raw_ICs_all{mousei}{ici};
                     catch 
                        disp('here');
                     end 
@@ -772,8 +781,8 @@ for mousei = 1:size(mice_all,2)
         sources.overlay = overlay;
 
         % Save
-        mkdir(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback without high fine tuning\' mouse '\']);
-        save(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback without high fine tuning\' mouse '\sources.mat'], 'sources');
+        mkdir(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback storage\' mouse '\']);
+        save(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback storage\' mouse '\sources.mat'], 'sources');
     
         % *** Now do it all for the regularized folder
         load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\regularized ICs 150 amp 3.5 two conditionals small 2.5 large 1\' mouse '\sources100.mat']);
@@ -792,8 +801,12 @@ for mousei = 1:size(mice_all,2)
                     sources.originalICNumber_domainsSplit = [sources.originalICNumber_domainsSplit original_IC_numbers_all{mousei}{ici}];
                 end 
                 
+                % Threshold and clean. 
+                new_source = add_back_all{mousei}{ici} > 0;
+                [new_source, ~] = CleanClust(new_source);
+                
                 % Update colormask
-                color_mask = add_back_all{mousei}{ici} .* raw_ICs_all{mousei}{ici};
+                color_mask = new_source .* raw_ICs_all{mousei}{ici};
                 
                 % Concatenate
                 sources.color_mask_domainsSplit = cat(3, sources.color_mask_domainsSplit, color_mask);

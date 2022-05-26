@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all([2:3 5:6]);
+parameters.mice_all=parameters.mice_all(1);
 
 % ****************************************
 % ***Parameters.*** 
@@ -226,6 +226,9 @@ end
 % regularization process. Wil run as a script, saves to end of list of
 % regularizing ICs so it doesn't disrupt any previously saved artifact
 % removals.
+% Puts ouput in "post addback storage" folder to keep you from overwriting
+% any artifact removal you want to do to the new sources. Have to copy the
+% output into a new folder manually to call it in the next steps.
 
 add_back_ICs_RandomMotorizedTreadmill.m
 
@@ -297,6 +300,10 @@ parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'mouse';
 
 RunAnalysis({@RemoveArtifacts}, parameters);
 
+
+%% Put info for removing blood vessels into m 1087
+
+%% POST ADD BACK: Remove Artifacts INCLUDING BLOOD VESSELS
 %% Return any deleted ICs you deleted by accident.
 % % Loop variables
 % parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator'};
