@@ -113,6 +113,21 @@ function [parameters] = RemoveArtifacts(parameters)
     reference_image_brain(indices) = 0; 
 
     % ****Arrange figure****;
+    
+    % Count number of small subplots needed. Count reference image 2x for
+    % context & brain under IC images.
+    small_subplots = 0;
+    small_subplot_counter = 0;
+    small_subplots_fields = {'reference_image'; 'reference_image'; 'overlay'; 'original_ICs'};
+    for i = 1:numel(small_subplots_fields)
+        if isfield(parameters, small_subplots_fields{i})
+            small_subplots = small_subplots + 1; 
+        end
+    end
+
+    % Based on number of small subplots, get the arrangement of plots
+    % (maximizes useable figure size)
+    
     fig = figure; 
 
     % Make full-screen
@@ -122,42 +137,97 @@ function [parameters] = RemoveArtifacts(parameters)
     sgtitle([strjoin(parameters.values(1:end/2), ', ' ) ]);
     
     % ** Context image **
-    subplot(3,3,1);
-    img = image(reference_image_context, 'CDataMapping', 'scaled');
-    set(img, 'AlphaData', ~isnan(source)); % Make nans "transparent"
-    title('Context');
+    if isfield(parameters, 'reference_image')
+
+        % Increase counter of what small subplot you're on;
+        small_subplot_counter = small_subplot_counter + 1; 
+        [subplots, ~, ~] = calculate_subplots(small_subplots, small_subplot_counter);
+
+        % Plot 
+        subplot(subplots(1), subplots(2),subplots(3));
+        img = image(reference_image_context, 'CDataMapping', 'scaled');
+        set(img, 'AlphaData', ~isnan(source)); % Make nans "transparent"
+        title('Context');
     
-    % Get the color range you'll use for the contex image.
-    top1 = max(max(source));
-    top2 = max(max(reference_image_context)); 
-    cmap = [parula(top1 * 10); gray((top2)*20)];
-    colormap(cmap);
-    axis square; xticks([]); yticks([]); 
-    
+        % Get the color range you'll use for the contex image.
+        top1 = max(max(source));
+        top2 = max(max(reference_image_context)); 
+        cmap = [parula(top1 * 10); gray((top2)*20)];
+        colormap(cmap);
+        axis square; xticks([]); yticks([]); 
+
+    end
+
     % ** Draw a figure showing the brain underneath the source.**
-    subplot(3, 3, 4);
-    img3 = imagesc(reference_image_brain);
-    set(img3, 'AlphaData', ~isnan(source)); % Make nans "transparent"
-    colormap(gca,[0.5 0.5 0.5; gray(256)]);
-    reference_image_brain(find(reference_image_brain == 0)) = NaN;
-    caxis([min(min(reference_image_brain)) max(max(reference_image_brain))]);
-    title('brain beneath source');
-    xticks([]); yticks([]); axis square; axis square; 
-    
+    if isfield(parameters, 'reference_image')
+
+        % Increase counter of what small subplot you're on;
+        small_subplot_counter = small_subplot_counter + 1; 
+        
+        [subplots, ~, ~] = calculate_subplots(small_subplots, small_subplot_counter);
+
+        % Plot 
+        subplot(subplots(1), subplots(2),subplots(3));
+        img3 = imagesc(reference_image_brain);
+        set(img3, 'AlphaData', ~isnan(source)); % Make nans "transparent"
+        colormap(gca,[0.5 0.5 0.5; gray(256)]);
+        reference_image_brain(find(reference_image_brain == 0)) = NaN;
+        caxis([min(min(reference_image_brain)) max(max(reference_image_brain))]);
+        title('brain beneath source');
+        xticks([]); yticks([]); axis square; axis square; 
+    end 
+
+    % ** Draw a figure showing all sources together in an overlay.**
+    if isfield(parameters, 'overlay')
+
+        % Increase counter of what small subplot you're on;
+        small_subplot_counter = small_subplot_counter + 1; 
+        
+        % Pull overlay out so you aren't changing it every time.
+        overlay = parameters.overlay;
+
+        % Make mask of current source 1+ the highest number, so it will be
+        % plotted a set color every time. 
+        indices = overlay == source_iterator; 
+        overlay(indices) = number_of_sources + 1; 
+
+        % Make a color map for the overlay, with the current source as red.
+        cmap1 = [1 1 1; 0.50 0.50 0.50; parula(number_of_sources); 1 0 0];
+        
+        [subplots, ~, ~] = calculate_subplots(small_subplots, small_subplot_counter);
+
+        % Plot 
+        subplot(subplots(1), subplots(2),subplots(3));
+        img1 = imagesc(overlay);    
+        colormap(gca, cmap1); 
+        title('(in red) with other sources');
+        xticks([]); yticks([]); axis square;
+    end
+   
     % ** Draw a figure showing the original, un-thresholded source. ** 
-    subplot(3,3,7); 
-    img1 = imagesc(original_source);    
-    colormap(gca, parula(256)); caxis([0 10]); 
-    title('corresponding raw source');
-    xticks([]); yticks([]); axis square;
-    
+    if isfield(parameters, 'original_ICs')
+
+        % Increase counter of what small subplot you're on;
+        small_subplot_counter = small_subplot_counter + 1; 
+
+        [subplots, ~, ~] = calculate_subplots(small_subplots, small_subplot_counter);
+
+        % Plot 
+        subplot(subplots(1), subplots(2),subplots(3));
+        img1 = imagesc(original_source);    
+        colormap(gca, parula(256)); caxis([0 10]); 
+        title('corresponding raw source');
+        xticks([]); yticks([]); axis square;
+    end
+
     % Draw the source, where you're going to draw masks.
-    subplot(1,3, 2:3); 
+    [~, subplot_column, subplot_large_column] = calculate_subplots(small_subplots, small_subplot_counter);
+    subplot(1,subplot_column, subplot_large_column); 
     img2 = imagesc(source);
     cmap2 = [0.5 0.5 0.5; parula(512)];
     colormap(gca, cmap2); colorbar; 
     xticks([]); yticks([]);  axis square;
-   
+
     % Grab axis handle for drawing on with ManualMasking
     axis_for_drawing = gca; 
 
@@ -244,4 +314,35 @@ function [parameters] = RemoveArtifacts(parameters)
             parameters.save_now = true;
         end
     end 
+end 
+
+function [subplots, subplot_column, subplot_large_column] = calculate_subplots(small_subplots, small_subplot_counter)
+    switch small_subplots
+        case {1, 2}
+            subplot_row = 2;
+            subplot_column = 3; 
+            subplot_large_column = 2:3;
+            subplots = [subplot_row, subplot_column,(small_subplot_counter -1)*subplot_column +1];
+
+        case 3 
+            subplot_row = 3;
+            subplot_column = 3; 
+            subplot_large_column = 2:3;
+            subplots = [subplot_row, subplot_column,((small_subplot_counter -1)*subplot_column +1)];
+        
+        case 4
+            subplot_row = 2;
+            subplot_column = 4; 
+            subplot_large_column = 3:4;
+            if small_subplot_counter < 3
+                subplots = [subplot_row, subplot_column,((small_subplot_counter-1).*subplot_column +1)];
+            else
+                subplots = [subplot_row, subplot_column,((small_subplot_counter -1).*subplot_column +2 - subplot_row .*subplot_column)];
+            end
+
+        case 0
+            subplots = [ 1 1 1];
+            subplot_column = 1; 
+            subplot_large_column = 1;
+    end
 end 
