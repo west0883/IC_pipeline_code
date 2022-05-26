@@ -121,10 +121,9 @@ function [parameters] = RemoveArtifacts(parameters)
         
         % Draw the source, where you're going to draw masks.
         subplot(1,3, 2:3); 
-        img2 = imagesc(source); caxis([0 10]);
-        %set(img2, 'AlphaData', ~isnan(source)); 
-        cmap2 = [0.5 0.5 0.5; parula(256)];
-        colormap(gca, cmap2); caxis([parameters.amplitude_threshold max(max(source))]); colorbar; 
+        img2 = imagesc(source);
+        cmap2 = [0.5 0.5 0.5; parula(512)];
+        colormap(gca, cmap2); colorbar; 
         xticks([]); yticks([]);  axis square;
        
         % Grab axis handle for drawing on with ManualMasking
