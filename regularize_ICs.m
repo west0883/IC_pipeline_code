@@ -138,10 +138,6 @@ function []=regularize_ICs(parameters)
                     
                     % Clean -- remove spindly pieces again
                     [Reg0, ~] = CleanClust(Reg0);
-                    
-                    % Clean the domain --fill holes, smooth edges
-                    Reg0 = imclose(Reg0, [1 1 1 1 1 ; 1 1 1 1 1 ; 1 1 1 1 1]);
-
                      
                     % Set everything remaining to the domain iterator. (I 
                     % guess potentially the domain ID could be different from 
