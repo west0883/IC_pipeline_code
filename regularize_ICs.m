@@ -185,7 +185,7 @@ function []=regularize_ICs(parameters)
         overlay(indices_of_mask) = 0; 
 
         % Make a colormap that includes -1s as white. 
-        mymap = [1 1 1; 0.80 0.80 0.80; parula(size(output_sources.domain_mask_domainssplit,3))];
+        mymap = [1 1 1; 0.50 0.50 0.50; parula(size(output_sources.domain_mask_domainssplit,3))];
 
         % For each IC
         for ici=1:size(output_sources.domain_mask_domainssplit,3)
@@ -195,6 +195,15 @@ function []=regularize_ICs(parameters)
            % Apply the IC number as the value at the IC indices
            overlay(ind2)=ici;
         end
+        
+        % Save the overlay matrix
+        % Get an overlay matrix filename 
+        if strcmp(output_filename(numel(output_filename)-3:end), '.mat')
+            filename_overlay = [output_filename(1:numel(output_filename)-4) '_overlay.mat'];
+        else 
+            filename_overlay = [output_filename '_overlay'];
+        end
+        save([dir_out filename_overlay], 'overlay');
 
         % Plot the overlay. 
         figure;hold on; 
