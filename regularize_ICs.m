@@ -65,17 +65,18 @@ function []=regularize_ICs(parameters)
         
         % Make holding variables for thresholded ICs-- with domains in same
         % image.
-        output_sources.color_mask_domainstogether=NaN(size(sources_reshaped));
-        output_sources.domain_mask_domainstogether=NaN(size(sources_reshaped));
+        output_sources.color_mask_domainsTogether = [];
+        output_sources.domain_mask_domainsTogether = [];
+        output_sources.domain_mask_domainsTogether_numbered = [];
         
         % Make holding variables for thresholded ICs-- with domains split
         % into different images. Will change sizes on each iteration.
-        output_sources.color_mask_domainssplit=[];
-        output_sources.domain_mask_domainssplit=[];
+        output_sources.color_mask_domainsSplit=[];
+        output_sources.domain_mask_domainsSplit=[];
         
         % Initialize the "position" counters at 0, for
         % keeping the domains together in same image.
-        position_domainstogether=0;
+        position_domainsTogether=0;
         
         % Initialize holders for original IC numbers.
         output_sources.originalICNumber_domainsSplit = [];
@@ -116,7 +117,7 @@ function []=regularize_ICs(parameters)
                 
                 
                 % Increase the position of domains in same image counter
-                position_domainstogether=position_domainstogether+1;
+                position_domainsTogether=position_domainsTogether+1;
                 
                 % Make a holding variable for Reg_id, which holds the imagess
                 % of each IC with each domain given a different number. 
@@ -152,16 +153,22 @@ function []=regularize_ICs(parameters)
                     color_mask_single=map.*(Reg0./domaini);
                     
                     % Concatenate
-                    output_sources.color_mask_domainssplit=cat(3, output_sources.color_mask_domainssplit, color_mask_single); 
+                    output_sources.color_mask_domainsSplit=cat(3, output_sources.color_mask_domainsSplit, color_mask_single); 
                     output_sources.originalICNumber_domainsSplit = [output_sources.originalICNumber_domainsSplit, ici];
-                    output_sources.domain_mask_domainssplit=cat(3, output_sources.domain_mask_domainssplit, Reg0./domaini); 
+                    output_sources.domain_mask_domainsSplit=cat(3, output_sources.domain_mask_domainsSplit, Reg0./domaini); 
                 
                 end
                 
-                % Hold flat masks of the IC with the
+                % Get color mask of the domains together. 
+                Reg_binary = Reg > 0; 
+                color_mask_single = map .* Reg_binary;
+                
+                % Hold masks of the IC with the
                 % domain ID preserved.
-                output_sources.domain_mask_domainstogether(:,:,position_domainstogether)=Reg_id;
-                output_sources.originalICNumber_domainsTogether =  [output_sources.originalICNumber_domainsTogether, ici];
+                output_sources.color_mask_domainsTogether = cat(3, output_sources.color_mask_domainsTogether, color_mask_single); 
+                output_sources.domain_mask_domainsTogether = cat(3, output_sources.domain_mask_domainsTogether, Reg_binary);
+                output_sources.domain_mask_domainsTogether_numbered = cat(3, output_sources.domain_mask_domainsTogether_numbered, Reg);
+                output_sources.originalICNumber_domainsTogether =  [output_sources.originalICNumber_domainsTogether, ici]; 
             end
         end
 
@@ -177,6 +184,16 @@ function []=regularize_ICs(parameters)
         % Save the regularized ICs 
         save([dir_out output_filename], output_variable, '-v7.3'); 
  
+        % For figures, use what user told you to plot. Default to
+        % splitting.
+        if isfield(parameters, 'splitDomains') && ~parameters.splitDomains
+            figure_sources.domain_mask = output_sources.domain_mask_domainsTogether;
+            figure_sources.color_mask = output_sources.color_mask_domainsTogether;
+        else
+            figure_sources.domain_mask = output_sources.domain_mask_domainsSplit;
+            figure_sources.color_mask = output_sources.color_mask_domainsSplit;
+        end
+
         % Draw an overlay image of all domains masks together. 
         
         % Initialize a blank overlay image. If there's a mask, make things
@@ -185,12 +202,12 @@ function []=regularize_ICs(parameters)
         overlay(indices_of_mask) = 0; 
 
         % Make a colormap that includes -1s as white. 
-        mymap = [1 1 1; 0.50 0.50 0.50; parula(size(output_sources.domain_mask_domainssplit,3))];
+        mymap = [1 1 1; 0.50 0.50 0.50; parula(size(figure_sources.domain_mask,3))];
 
         % For each IC
-        for ici=1:size(output_sources.domain_mask_domainssplit,3)
+        for ici=1:size(figure_sources.domain_mask,3)
            % Find the IC indices
-           ind2=find(output_sources.domain_mask_domainssplit(:,:,ici)==1); 
+           ind2=find(figure_sources.domain_mask(:,:,ici)==1); 
            
            % Apply the IC number as the value at the IC indices
            overlay(ind2)=ici;
@@ -228,13 +245,17 @@ function []=regularize_ICs(parameters)
         % Make a colormap that includes -1s as white. 
         mymap = [1 1 1; 0.80 0.80 0.80; parula(256)];
 
-        figure; 
-        for i=1:size(output_sources.color_mask_domainssplit,3)
+        fig = figure;
+
+        % Make full-screen
+        fig.WindowState = 'maximized';
+
+        for i=1:size(figure_sources.color_mask,3)
              % Initialize a blank overlay image. If there's a mask, make things
              % outside of it equal -1 for plotting
              holder=ones(parameters.yDim, parameters.xDim)*-1;
              holder(indices_of_mask) = 0; 
-             this_image = output_sources.color_mask_domainssplit(:,:,i);
+             this_image = figure_sources.color_mask(:,:,i);
              color_indices = this_image > 0;
              holder(color_indices) = this_image(color_indices);
              subplot(subplot_rows,subplot_columns,i); 
