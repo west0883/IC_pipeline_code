@@ -100,13 +100,7 @@ CluRegNum=max(max(Reg));
 
 for t=ClusNum:-1:1
     if ClusSize(t)<=thr
-        for i=1:s1
-            for j=1:s2
-                if Reg(i,j)==t
-                    Reg(i,j)=0;
-                end
-            end
-        end
+        Reg(Reg == t) = 0;
     end
 end
 f=unique(Reg);
