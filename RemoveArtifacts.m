@@ -13,8 +13,38 @@
 
 function [parameters] = RemoveArtifacts(parameters)
 
-    % Convert to an easier-to-use parameter name
-    sources = parameters.sources.color_mask_domainssplit;
+    % Grab sources and list of original/raw source numbers based on if user
+    % wants to use the split domains or not. Default is to split. 
+    if isfield(parameters, 'splitDomains') && ~parameters.splitDomains
+        
+        % If they don't want to split.
+        
+        % Grab sources
+        sources = parameters.sources.color_mask_domainsTogether;
+
+        % Define source_iterator based on location in keywords/values, use it for rest of analysis.
+        source_iterator = parameters.values{find(contains(parameters.keywords,'source_iterator'))};
+
+        % Find the original source numbers of the ICs
+        originalSourceNumbers = parameters.sources.originalICNumber_domainsTogether';
+        
+    else
+
+        % If they want to split
+
+        % Grab sources
+        sources = parameters.sources.color_mask_domainssplit;
+        
+        % Define source_iterator based on location in keywords/values, use it for rest of analysis.
+        source_iterator = parameters.values{find(contains(parameters.keywords,'source_iterator'))};
+        
+        % Find the original source numbers of the ICs
+        originalSourceNumbers = parameters.sources.originalICNumber_domainsSplit';
+        
+    end
+
+    % Get the original source number for THIS source   
+    original_source_iterator =originalSourceNumbers(source_iterator);
 
     % Set up a holder for a variable number of dimensions
     S = repmat({':'},1, ndims(sources));
@@ -35,9 +65,6 @@ function [parameters] = RemoveArtifacts(parameters)
         disp('There are more sources than maximum iterations. You may need to increase your source iteration range.');
     end
 
-    % Define source_iterator based on location in keywords/values, use it for rest of analysis.
-    source_iterator = parameters.values{find(contains(parameters.keywords,'source_iterator'))};
-    
     % Check if the current source iterator is greater than the number of
     % sources (can happen when you put an estimated maximum for source
     % ranges.) Go back to RunAnalysis if so. 
@@ -86,14 +113,11 @@ function [parameters] = RemoveArtifacts(parameters)
         existing_mask_indices=[existing_mask_indices; find(mask_flat)]; 
     end
     source(existing_mask_indices)=0;
-
-    % Find the original source number of the IC you want. 
-    original_source_iterator = parameters.sources.originalICNumber_domainsSplit(source_iterator);
     
     % Grab original source.
-    S2 = repmat({':'},1, ndims(parameters.original_ICs));
+    S2 = repmat({':'},1, ndims(parameters.original_sources));
     S2{parameters.originalSourcesDim} = original_source_iterator; 
-    original_source = abs(parameters.original_ICs(S2{:})); 
+    original_source = abs(parameters.original_sources(S2{:})); 
 
     % Put pixels of original IC into first dimension
     original_source = permute(original_source,[parameters.originalSourcesPixelsDim setxor(parameters.originalSourcesPixelsDim, 1:ndims(original_source))]);
@@ -125,7 +149,7 @@ function [parameters] = RemoveArtifacts(parameters)
     % context & brain under IC images.
     small_subplots = 0;
     small_subplot_counter = 0;
-    small_subplots_fields = {'reference_image'; 'reference_image'; 'overlay'; 'original_ICs'};
+    small_subplots_fields = {'reference_image'; 'reference_image'; 'overlay'; 'original_sources'};
     for i = 1:numel(small_subplots_fields)
         if isfield(parameters, small_subplots_fields{i})
             small_subplots = small_subplots + 1; 
@@ -212,7 +236,7 @@ function [parameters] = RemoveArtifacts(parameters)
     end
    
     % ** Draw a figure showing the original, un-thresholded source. ** 
-    if isfield(parameters, 'original_ICs')
+    if isfield(parameters, 'original_sources')
 
         % Increase counter of what small subplot you're on;
         small_subplot_counter = small_subplot_counter + 1; 
@@ -283,9 +307,9 @@ function [parameters] = RemoveArtifacts(parameters)
     S{parameters.sourcesDim} = parameters.sources_artifacts_removed.sources_removed;
     parameters.sources_artifacts_removed.sources(S{:}) = []; 
 
-    % Update original (raw) source ID list with removed sources. 
-    parameters.sources_artifacts_removed.originalICNumber = parameters.sources.originalICNumber_domainsSplit';
-    parameters.sources_artifacts_removed.originalICNumber(parameters.sources_artifacts_removed.sources_removed) = [];
+    % Update original (raw) source ID list with removed sources.
+    originalSourceNumbers(parameters.sources_artifacts_removed.sources_removed) = [];
+    parameters.sources_artifacts_removedoriginalICNumbers =originalSourceNumbers;
 
     % Ask if the user wants to work on next source.
     user_answer1= inputdlg(['Do you want to work on the next source? y = yes, n = no'], 'User input', 1,{'n'}, opts); 
