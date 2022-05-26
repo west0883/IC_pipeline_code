@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(2:end);
+parameters.mice_all=parameters.mice_all(3);
 
 % ****************************************
 % ***Parameters.*** 
@@ -157,6 +157,9 @@ parameters.large_component_conditional_zscore_thresh = 1;
 parameters.small_component_conditional_zscore_flag = true;
 parameters.small_component_conditional_zscore_thresh = 2.5;
 
+% Use second (right) monitor for figures, if available?
+parameters.second_monitor = true;
+
 % Always clear loop list first. 
 if isfield(parameters, 'loop_list')
 parameters = rmfield(parameters,'loop_list');
@@ -171,7 +174,7 @@ parameters.originalSourcesDim = 1;
 
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'1:70'}, 'source_iterator'};
+                                  'source', {'25:70'}, 'source_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
