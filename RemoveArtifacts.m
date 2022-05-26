@@ -76,7 +76,7 @@ function [parameters] = RemoveArtifacts(parameters)
     % not, establish all fields.
     % This still works with looping through sources at RunAnalysis level b/c this is only called
     % before first source. 
-    if ~isfield(parameters, 'sources_artifacts_removed')
+    if ~isfield(parameters, 'sources_artifacts_removed') || (isfield(parameters, 'sources_artifacts_removed') && isempty(parameters.sources_artifacts_removed))
     
        % Initialize list of indices to remove.
        parameters.sources_artifacts_removed.indices_to_remove = cell(number_of_sources,1);
