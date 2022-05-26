@@ -27,11 +27,11 @@ function []= calculate_ICs(parameters)
     for mousei=1:size(mice_all,2)  
         
         % Get the mouse name and display to user.
-        mouse=mice_all(mousei).mouse;
+        mouse=mice_all(mousei).name;
         disp(['mouse #' mouse]); 
         
         % Create name of files to load 
-        [file_string]=CreateFileStrings(compressed_data_name, mouse, [], []);
+        [file_string]=CreateFileStrings(compressed_data_name, mouse, [], [], false);
         
         % Load in the compressed data-- only the spatial component and the
         % S. 

@@ -28,7 +28,7 @@ function []=regularize_ICs(parameters)
     for mousei=1:size(mice_all,2)   
        
         % Find mouse and display to user
-        mouse=mice_all(mousei).mouse;
+        mouse=mice_all(mousei).name;
         disp(['mouse ' mouse]); 
         
         % Make an output folder for this mouse 
@@ -53,7 +53,7 @@ function []=regularize_ICs(parameters)
         % If masked, (if mask_flag is "true")
         if masked_flag 
             % Find file name of masks
-            file_string_mask=CreateFileStrings(masks_name, mouse, [], []);
+            file_string_mask=CreateFileStrings(masks_name, mouse, [], [], false);
             
             % Load mask indices 
             load(file_string_mask, 'indices_of_mask'); 

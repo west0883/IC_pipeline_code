@@ -35,7 +35,7 @@ function []=plot_rawICs(parameters)
         % If the data was masked, load mask and reshape specially
         if masked_flag==1
             % Find file name of masks
-            file_string_mask=CreateFileStrings(masks_name, mouse, [], []);
+            file_string_mask=CreateFileStrings(masks_name, mouse, [], [], false);
             
             % Load mask indices 
             load(file_string_mask, 'indices_of_mask'); 
