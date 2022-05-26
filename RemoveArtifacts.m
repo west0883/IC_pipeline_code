@@ -220,7 +220,7 @@ function [parameters] = RemoveArtifacts(parameters)
         
         [subplots, ~, ~] = calculate_subplots(small_subplots, small_subplot_counter);
 
-        % Plot 
+        % Plot image for brain beneath source
         subplot(subplots(1), subplots(2),subplots(3));
         img3 = imagesc(reference_image_brain);
         set(img3, 'AlphaData', ~isnan(source)); % Make nans "transparent"
@@ -229,37 +229,38 @@ function [parameters] = RemoveArtifacts(parameters)
         caxis([min(min(reference_image_context)) max(max(reference_image_context))]);
         title('brain beneath source');
         xticks([]); yticks([]); axis square; axis square; 
+        reference_image_brain_axes = gca;
     end 
 
     % ** Draw a figure showing all sources together in an overlay.**
 
-        % Increase counter of what small subplot you're on;
-        small_subplot_counter = small_subplot_counter + 1; 
-        
-        % Pull overlay out so you aren't changing it every time.
-        overlay = parameters.sources_artifacts_removed.overlay;
+    % Increase counter of what small subplot you're on;
+    small_subplot_counter = small_subplot_counter + 1; 
+    
+    % Pull overlay out so you aren't changing it every time.
+    overlay = parameters.sources_artifacts_removed.overlay;
 
-        % Make mask of current source 1+ the highest number, so it will be
-        % plotted a set color every time. 
-        indices = source > 0; 
-        overlay(indices) = number_of_sources + 1; 
+    % Make mask of current source 1+ the highest number, so it will be
+    % plotted a set color every time. 
+    indices = source > 0; 
+    overlay(indices) = number_of_sources + 1; 
 
-        % Make a color map for the overlay, with the current source as
-        % red. Depends on if there was a mask applied
-        % If there was a mask, make it gray. 
-        if isfield(parameters, 'indices_of_mask')
-             cmap1 = [1 1 1; 0.50 0.50 0.50; parula(number_of_sources); 1 0 0];
-        else
-            cmap1 = [1 1 1; parula(number_of_sources)];
-        end
-        [subplots, ~, ~] = calculate_subplots(small_subplots, small_subplot_counter);
+    % Make a color map for the overlay, with the current source as
+    % red. Depends on if there was a mask applied
+    % If there was a mask, make it gray. 
+    if isfield(parameters, 'indices_of_mask')
+         cmap1 = [1 1 1; 0.50 0.50 0.50; parula(number_of_sources); 1 0 0];
+    else
+        cmap1 = [1 1 1; parula(number_of_sources)];
+    end
+    [subplots, ~, ~] = calculate_subplots(small_subplots, small_subplot_counter);
 
-        % Plot 
-        subplot(subplots(1), subplots(2),subplots(3));
-        img1 = imagesc(overlay);    
-        colormap(gca, cmap1); 
-        title('(in red) with other sources');
-        xticks([]); yticks([]); axis square;
+    % Plot 
+    subplot(subplots(1), subplots(2),subplots(3));
+    img1 = imagesc(overlay);    
+    colormap(gca, cmap1); 
+    title('(in red) with other sources');
+    xticks([]); yticks([]); axis square;
     
    
     % ** Draw a figure showing the original, un-thresholded source. ** 
@@ -292,11 +293,13 @@ function [parameters] = RemoveArtifacts(parameters)
     % Grab axis handle for drawing on with ManualMasking
     axis_for_drawing = gca; 
 
+    % Grab any existing masks
+    existing_masks = parameters.sources_artifacts_removed.artifact_masks{source_number};
+
+    % *** Ask if the whole IC should be thrown out.***
     % Arrange input dialogue options-- allowing for interaction with
     % figures
     opts.WindowStyle = 'normal';
-
-    % *** Ask if the whole IC should be thrown out.***
     user_answer1= inputdlg(['Do you want to throw out this entire source as an artifact? y=yes, n=no'], 'User input', 1,{'n'}, opts); 
    
     %Convert the user's answer into a value
@@ -311,8 +314,55 @@ function [parameters] = RemoveArtifacts(parameters)
         parameters.sources_artifacts_removed.sources_removed = [parameters.sources_artifacts_removed.sources_removed; source_number]; 
 
     else
-        % Grab any existing masks
-        existing_masks = parameters.sources_artifacts_removed.artifact_masks{source_number};
+        % ***** Ask user if they want to use a darkness threshold for removing
+        % blood vessels. ****
+        % Arrange input dialogue options-- allowing for interaction with
+        % figures
+        opts.WindowStyle = 'normal';
+        user_answer1= inputdlg(['Do you want to apply a darkness threshold to remove blood vessels? y=yes, n=no'], 'User input', 1,{'n'}, opts); 
+       
+        %Convert the user's answer into a value
+        answer1=(user_answer1{1});
+        
+        % If the user's answer is y, ask for a threshold. Do nothing otherwise.
+        if strcmp('y', answer1)
+    
+            % Ask for threshold. 
+            opts.WindowStyle = 'normal';
+            user_answer1= inputdlg(['Minimum threshold: '], 'User input', 1,{'0'}, opts); 
+    
+            % Convert the user's answer into a value
+            threshold = str2num(user_answer1{1});
+            
+            % Find that value in the under-the-brain image,
+            dark_pixels = find(reference_image_brain < threshold & reference_image_brain > 0);
+            
+            % Add those pixels to list of existing masks
+            dark_pixels_mask = zeros(size(source));
+            dark_pixels_mask(dark_pixels) = 1; 
+            existing_masks = cat(3, existing_masks, dark_pixels_mask);
+    
+            % Apply those pixels to the source, reference brain image,
+            % existing masks
+            source(dark_pixels) = 0;
+            reference_image_brain(dark_pixels) = NaN;
+            
+    
+            % Re-plot source; 
+            axes(axis_for_drawing); 
+            mymap=[0.5 0.5 0.5; parula(512)];
+            imagesc(source); colormap(axis_for_drawing, mymap);
+            xticks([]); yticks([]); axis square; 
+
+            % Re-plot brain context image. 
+            img3 = imagesc(reference_image_brain_axes, reference_image_brain);
+            axes(reference_image_brain_axes);
+            set(img3, 'AlphaData', ~isnan(source)); % Make nans "transparent"
+            colormap(reference_image_brain_axes,[0 0.5 0.75; gray(256)]); % Make background a light blue so you can tell the difference from the brain behind the source
+            caxis([min(min(reference_image_context)) max(max(reference_image_context))]);
+            title('brain beneath source');
+            xticks([]); yticks([]); axis square; axis square; 
+        end
         
         % Set a "don't flip" value -- don't flip up-down for this sort of
         % masking.
