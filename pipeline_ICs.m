@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(1);
+parameters.mice_all=parameters.mice_all([1:3, 5, 6]);
 
 % ****************************************
 % ***Parameters.*** 
@@ -620,7 +620,7 @@ parameters.loop_list.things_to_save.sources_reordered.level = 'mouse';
 RunAnalysis({@ReorderSources}, parameters);
 
 %% Make a reordered overlay. 
-% (isn't saving, for now)
+
 [subplot_rows, subplot_columns] = OptimizeSubplotNumbers(numel(parameters.mice_all(:)));
 
 figure; 
@@ -637,4 +637,5 @@ for i = 1:size(parameters.mice_all(:))
     end 
     subplot(subplot_rows, subplot_columns, i); imagesc(overlay); axis square; title(mouse); colorbar; colormap([1 1 1; parula(size(sources,3))]);
     xticks([]); yticks([]);
+    savefig(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\manual assignments\sources_reordered_allmice.fig'])
 end 
