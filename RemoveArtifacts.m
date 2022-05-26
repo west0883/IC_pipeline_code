@@ -109,7 +109,7 @@ function [parameters] = RemoveArtifacts(parameters)
     fig.WindowState = 'maximized';
     
     % Make figure title with all iterator values in it.
-    sgtitle([strjoin(parameters.values(1:end/2), ', ' ) ', source ' num2str(source_iterator)]);
+    sgtitle([strjoin(parameters.values(1:end/2), ', ' ) ]);
     
     % ** Context image **
     subplot(3,3,1);
@@ -184,21 +184,17 @@ function [parameters] = RemoveArtifacts(parameters)
 
     close all; 
 
-    % If there's more than one source in this data set, ask user if they want to work on next source.
-    % (If source is in its own file, don't want to ask user if they
-    % want to continue twice per source; Don't ask twice at end of a dataset). 
-    if number_of_sources ~= 1 && source_iterator ~= number_of_sources
-        user_answer1= inputdlg(['Do you want to work on the next source? y = yes, n = no']); 
+    % Ask if the user wants to work on next source.
+    user_answer1= inputdlg(['Do you want to work on the next source? y = yes, n = no']); 
 
-        % Convert the user's answer into a value
-        answer1=user_answer1{1};
+    % Convert the user's answer into a value
+    answer1=user_answer1{1};
 
-        % If user didn't want to continue to next mouse, set continue flag to false
-        if strcmp(answer1, 'y')
-            parameters.continue_flag = true;
-        else    
-            parameters.continue_flag = false;
-        end
+    % If user didn't want to continue to next mouse, set continue flag to false
+    if strcmp(answer1, 'y')
+        parameters.continue_flag{end} = true;
+    else    
+        parameters.continue_flag{end} = false;
     end
    
     % Remove sources that should be removed. (Do this every time, is okay
@@ -210,18 +206,18 @@ function [parameters] = RemoveArtifacts(parameters)
     parameters.sources_artifacts_removed.originalICNumber = parameters.sources.originalICNumber_domainsSplit';
     parameters.sources_artifacts_removed.originalICNumber(parameters.sources_artifacts_removed.sources_removed) = [];
 
-    % If this was the max source number, ask user if they want to work on next dataset 
-    if source_iterator == number_of_sources 
+    % If this was the max source number & there ask user if they want to work on next dataset; Don't ask if there aren't multiple levels of iterators. 
+    if source_iterator == number_of_sources && numel(parameters.continue_flag) > 1
         user_answer1= inputdlg(['Do you want to work on the next data set? y = yes, n = no']); 
     
         % Convert the user's answer into a value
         answer1=user_answer1{1};
         
-        % If user didn't want to continue to next mouse, set continue flag to false
+        % If user didn't want to continue to next dataset, set continue flag one level up to false
         if strcmp(answer1, 'y')
-            parameters.continue_flag = true;
+            parameters.continue_flag{end-1} = true;
         else    
-            parameters.continue_flag = false;
+            parameters.continue_flag {end-1}= false;
         end
     end 
 end 
