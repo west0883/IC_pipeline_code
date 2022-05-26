@@ -111,7 +111,7 @@ plot_rawICs(parameters);
 %% Regularize ICs
 
 % Determine how many subplots you want for displaying your individual ICs.
-parameters.plot_sizes=[6,8]; 
+parameters.plot_sizes=[5,8]; 
 
 % Input directory 
 parameters.dir_input_base = {[parameters.dir_exper 'spatial segmentation\raw ICs\'], 'mouse number', '\'};
@@ -138,7 +138,6 @@ parameters.originalSourcesDim = 1;
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
                                   'source', {'1:50'}, 'source_iterator'};
-
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
@@ -157,6 +156,13 @@ parameters.loop_list.things_to_load.reference_image.filename= {'reference_image.
 parameters.loop_list.things_to_load.reference_image.variable= {'reference_image'};
 parameters.loop_list.things_to_load.reference_image.level = 'mouse';
 
+parameters.loop_list.things_to_load.overlay.dir = {[parameters.dir_exper 'spatial segmentation\regularized ICs_' num2str(parameters.area_threshold) 'pixels\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.overlay.filename= {['sources' num2str(parameters.num_sources) '_overlay.mat']};
+parameters.loop_list.things_to_load.overlay.variable= {'overlay'};
+parameters.loop_list.things_to_load.overlay.level = 'mouse';
+
+% [Right now, code assumes raw sources are in same file, I think it still
+% works if it's each source separate.]
 parameters.loop_list.things_to_load.original_ICs.dir = {[parameters.dir_exper '\spatial segmentation\raw ICs\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.original_ICs.filename= {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.loop_list.things_to_load.original_ICs.variable= {'sources'};
