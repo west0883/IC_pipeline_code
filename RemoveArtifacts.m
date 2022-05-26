@@ -69,16 +69,15 @@ function [parameters] = RemoveArtifacts(parameters)
         % Make find indices where the source is.
         indices = find(source > 0);
 
-        % Hold onto a version of the reference image.
-        reference_image_old = reference_image;
-
         % For the contex image, put the source in the reference image. 
-        reference_image(indices) = source(indices);
+        reference_image_context = reference_image;
+        reference_image_context(indices) = source(indices);
         
         % For image of brain behind the source, keep pixels of reference
         % image that are only the source.
+        reference_image_brain = reference_image; 
         indices = find(source == 0); 
-        reference_image_old(indices) = 0; 
+        reference_image_brain(indices) = 0; 
 
         % ****Arrange figure****;
         fig = figure; 
@@ -91,24 +90,24 @@ function [parameters] = RemoveArtifacts(parameters)
         
         % ** Context image **
         subplot(3,3,1);
-        img = image(reference_image, 'CDataMapping', 'scaled');
+        img = image(reference_image_context, 'CDataMapping', 'scaled');
         set(img, 'AlphaData', ~isnan(source)); % Make nans "transparent"
         title('Context');
         
         % Get the color range you'll use for the contex image.
         top1 = max(max(source));
-        top2 = max(max(reference_image)); 
+        top2 = max(max(reference_image_context)); 
         cmap = [parula(top1 * 10); gray((top2)*20)];
         colormap(cmap);
         axis square; xticks([]); yticks([]); 
         
         % ** Draw a figure showing the brain underneath the source.**
         subplot(3, 3, 4);
-        img3 = imagesc(reference_image_old);
+        img3 = imagesc(reference_image_brain);
         set(img3, 'AlphaData', ~isnan(source)); % Make nans "transparent"
         colormap(gca,[0.5 0.5 0.5; gray(256)]);
-        reference_image_old(find(reference_image_old == 0)) = NaN;
-        caxis([min(min(reference_image_old)) max(max(reference_image_old))]);
+        reference_image_brain(find(reference_image_brain == 0)) = NaN;
+        caxis([min(min(reference_image_brain)) max(max(reference_image_brain))]);
         title('brain beneath source');
         xticks([]); yticks([]); axis square; axis square; 
         
@@ -123,7 +122,7 @@ function [parameters] = RemoveArtifacts(parameters)
         % Draw the source, where you're going to draw masks.
         subplot(1,3, 2:3); 
         img2 = imagesc(source); caxis([0 10]);
-        set(img2, 'AlphaData', ~isnan(source)); 
+        %set(img2, 'AlphaData', ~isnan(source)); 
         cmap2 = [0.5 0.5 0.5; parula(256)];
         colormap(gca, cmap2); caxis([parameters.amplitude_threshold max(max(source))]); colorbar; 
         xticks([]); yticks([]);  axis square;
@@ -160,7 +159,19 @@ function [parameters] = RemoveArtifacts(parameters)
             source(indices_of_mask) = 0; 
             parameters.sources_artifacts_removed.sources(S{:}) = source;
         end
-   
+
+        close all; 
+
+        % Ask user if they want to work on next source.
+        user_answer1= inputdlg(['Do you want to work on the next source? y = yes, n = no']); 
+
+        % Convert the user's answer into a value
+        answer1=user_answer1{1};
+    
+        % If user didn't want to continue to next source, break for loop
+        if strcmp(answer1, 'n')
+            break
+        end
     end
    
     % Remove sources that should be removed. 
@@ -168,20 +179,19 @@ function [parameters] = RemoveArtifacts(parameters)
     parameters.sources_artifacts_removed.sources(S{:}) = []; 
 
     % Upadate original (raw) source ID list. 
-    parameters.sources_artifacts_removed.originalICNumber = parameters.sources.originalICNumber_domainsSplit;
+    parameters.sources_artifacts_removed.originalICNumber = parameters.sources.originalICNumber_domainsSplit';
     parameters.sources_artifacts_removed.originalICNumber(parameters.sources_artifacts_removed.sources_removed) = [];
 
     % Ask user if they want to work on next dataset 
-    user_answer1= inputdlg(['Do you want to work on the next data set? 1=Y, 0=N']); 
+    user_answer1= inputdlg(['Do you want to work on the next data set? y = yes, n = no']); 
 
     % Convert the user's answer into a value
-    answer1=str2num(user_answer1{1});
+    answer1=user_answer1{1};
     
     % If user didn't want to continue to next mouse, set continue flag to false
-    if answer1
+    if strcmp(answer1, 'y')
         parameters.continue_flag = true;
     else    
         parameters.continue_flag = false;
     end
-
 end 
