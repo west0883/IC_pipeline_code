@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(2);
+parameters.mice_all=parameters.mice_all(2:end);
 
 % ****************************************
 % ***Parameters.*** 
@@ -110,10 +110,10 @@ plot_rawICs(parameters);
 % For cleaning the ICs
 % Applies a (raw) threshold to the ICs.
 
-parameters.amplitude_threshold = 3.5;
+parameters.amplitude_threshold = 3.5; % 3.5
 
 % Minimim size in pixels of an IC.
-parameters.minPixels = 300;
+parameters.minPixels = 150; % 150
 
 % Indicate if you want to z-score your ICs before regularizing (true/false)
 %parameters.zscore_flag = false;
@@ -131,14 +131,31 @@ parameters.input_filename = {['sources' num2str(parameters.num_sources) '.mat']}
 parameters.input_variable = {'sources'};
 
 % output directory
-parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs ' num2str(parameters.minPixels) ' two conditionals ' num2str(parameters.amplitude_threshold) '\'], 'mouse number', '\'};
+parameters.dir_output_base = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs ' ... 
+                             num2str(parameters.minPixels) ' amp ' num2str(parameters.amplitude_threshold) ' two conditionals small ' num2str(parameters.small_component_conditional_zscore_thresh) ...
+                              ' large ' num2str(num2str(parameters.large_component_conditional_zscore_thresh)) '\'], 'mouse number', '\'};
 parameters.output_filename = {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.output_variable = {'sources'};
 
 % (DON'T EDIT). Run code. 
 regularize_ICs(parameters);
 
+
+%% Add back some ICs 
+% raw IC segments that you think are real but didn't survive the
+% regularization process. Wil run as a script, saves to end of list of
+% regularizing ICs so it doesn't disrupt any previously saved artifact
+% removals.
+
 %% Remove IC artifacts (interactive)
+
+parameters.amplitude_threshold = 3.5; % 3.5
+parameters.minPixels = 150; % 150
+parameters.large_component_conditional_zscore_flag = true;
+parameters.maxPixels = 5000; 
+parameters.large_component_conditional_zscore_thresh = 1;
+parameters.small_component_conditional_zscore_flag = true;
+parameters.small_component_conditional_zscore_thresh = 2.5;
 
 % Always clear loop list first. 
 if isfield(parameters, 'loop_list')
@@ -154,11 +171,13 @@ parameters.originalSourcesDim = 1;
 
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'1:50'}, 'source_iterator'};
+                                  'source', {'1:70'}, 'source_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
-parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs_' num2str(parameters.minPixels) 'pixels\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs ' ... 
+                             num2str(parameters.minPixels) ' amp ' num2str(parameters.amplitude_threshold) ' two conditionals small ' num2str(parameters.small_component_conditional_zscore_thresh) ...
+                              ' large ' num2str(num2str(parameters.large_component_conditional_zscore_thresh)) '\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
 parameters.loop_list.things_to_load.sources.variable= {'sources'};
 parameters.loop_list.things_to_load.sources.level = 'mouse';
@@ -181,13 +200,13 @@ parameters.loop_list.things_to_load.original_sources.variable= {'sources'};
 parameters.loop_list.things_to_load.original_sources.level = 'mouse';
 
 % (for any existing artifact removals)
-parameters.loop_list.things_to_load.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts_removed\'], 'mouse', '\'};
+parameters.loop_list.things_to_load.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\'], 'mouse', '\'};
 parameters.loop_list.things_to_load.sources_artifacts_removed.filename = {'sources.mat'};
 parameters.loop_list.things_to_load.sources_artifacts_removed.variable= {'sources'};
 parameters.loop_list.things_to_load.sources_artifacts_removed.level = 'mouse';
 
 % Output values
-parameters.loop_list.things_to_save.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts_removed\'], 'mouse', '\'};
+parameters.loop_list.things_to_save.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\'], 'mouse', '\'};
 parameters.loop_list.things_to_save.sources_artifacts_removed.filename = {'sources.mat'};
 parameters.loop_list.things_to_save.sources_artifacts_removed.variable= {'sources'};
 parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'mouse';
