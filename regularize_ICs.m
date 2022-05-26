@@ -238,12 +238,17 @@ function []=regularize_ICs(parameters)
   
         % Plot individual color maps 
         
-        % Get the number of subplots to use.
-        subplot_rows=parameters.plot_sizes(1);
-        subplot_columns=parameters.plot_sizes(2); 
+        % Get the number of subplots to use, if user put it in.
+        if isfield(parameters, 'plot_sizes')
+            subplot_rows=parameters.plot_sizes(1);
+            subplot_columns=parameters.plot_sizes(2); 
+        else
+            % Otherwise, get the optimized version.
+            [subplot_rows, subplot_columns] = OptimizeSubplotNumbers(size(figure_sources.color_mask,3));
+        end
 
         % Make a colormap that includes -1s as white. 
-        mymap = [1 1 1; 0.80 0.80 0.80; parula(256)];
+        mymap = [1 1 1; 0.5 0.5 0.5; parula(512)];
 
         fig = figure;
 
