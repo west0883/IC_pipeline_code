@@ -33,6 +33,11 @@ function []= calculate_ICs(parameters)
         mouse=mice_all(mousei).name;
         disp(['mouse #' mouse]); 
         
+        % Create output file path & filename
+        dir_out =CreateFileStrings(parameters.dir_out, mouse, [], [], [], false);
+        filename = CreateFileStrings(parameters.output_filename, mouse, [], [], [], false);
+        mkdir(dir_out); 
+        
         % Create name of files to load 
         [file_string]=CreateFileStrings(compressed_data_name, mouse, [], [], false);
         
@@ -46,6 +51,8 @@ function []= calculate_ICs(parameters)
             case 'V'
                 % See if user wants to use a gpu.
                 if isfield(parameters, 'use_gpu') && parameters.use_gpu
+                    
+                    tic 
                     V = gpuArray(V);
                     S = gpuArray(S);
 
@@ -55,11 +62,17 @@ function []= calculate_ICs(parameters)
 
                     % Return sources results to CPU numerival array.
                     [sources, B] = gather(sources, B);
+                    
+                    time_elapsed = toc;
+                    time_elapsed_filename = ['time_elapsed_m' mouse '_GPU'];
 
                 else
                     % Run JADE ICA on CPU
+                    tic
                     B = jader_lsp([S*V'],num_sources);
                     sources=B*[S*V'];
+                    time_elapsed = toc;
+                    time_elapsed_filename = ['time_elapsed_m' mouse '_CPU'];
                 end
 
             case 'U'
@@ -67,6 +80,7 @@ function []= calculate_ICs(parameters)
                  if isfield(parameters, 'use_gpu') && parameters.use_gpu
 
                     % Convert to GPU array. 
+                    tic
                     U = gpuArray(U);
                     S = gpuArray(S);
                     
@@ -76,19 +90,21 @@ function []= calculate_ICs(parameters)
 
                     % Return sources results to CPU numerical array.
                     [sources, B] = gather(sources, B);
-                
+                    time_elapsed = toc;
+                    time_elapsed_filename = ['time_elapsed_m' mouse '_GPU'];
                  else 
                      % Run JADE ICA on CPU
+                     tic;
                      B = jader_lsp([U*S],num_sources);
                      sources=B*[U*S];
+                     time_elapsed = toc;
+                     time_elapsed_filename = ['time_elapsed_m' mouse '_CPU'];
                  end
         end
       
-        % Create output file path & filename
-        dir_out =CreateFileStrings(parameters.dir_out, mouse, [], [], [], false);
-        filename = CreateFileStrings(parameters.output_filename, mouse, [], [], [], false);
-        mkdir(dir_out); 
-
+        % Save time elapsed (to see if GPU is more effective)
+        save([dir_out time_elapsed_filename], 'time_elapsed');
+        
         % Save sources and B.
         save([dir_out filename], 'sources', 'B', '-v7.3');  
     end
