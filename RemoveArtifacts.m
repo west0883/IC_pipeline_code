@@ -191,8 +191,13 @@ function [parameters] = RemoveArtifacts(parameters)
 
     % Based on number of small subplots, get the arrangement of plots
     % (maximizes useable figure size)
-    
-    fig = figure; 
+   
+    % Plot on second monitor, if user says so
+    if isfield(parameters, 'second_monitor') && parameters.second_monitor
+        fig = figure2;
+    else
+        fig = figure;
+    end
 
     % Make full-screen
     fig.WindowState = 'maximized';
@@ -350,8 +355,7 @@ function [parameters] = RemoveArtifacts(parameters)
             % Apply those pixels to the source, reference brain image,
             % existing masks
             source(dark_pixels) = 0;
-            reference_image_brain(dark_pixels) = NaN;
-            
+            reference_image_brain(dark_pixels) = NaN;  
     
             % Re-plot source; 
             axes(axis_for_drawing); 
