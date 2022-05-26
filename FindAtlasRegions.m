@@ -28,8 +28,12 @@ function [parameters] = FindAtlasRegions(parameters)
            
         % Calculate metrics for each region name. Get list of all the
         % regions
-        all_regions = fieldnames(parameters.region_names);
-        
+        if isfield(parameters, 'region_order')
+           all_regions = parameters.region_order(:,2);
+        else
+            all_regions = fieldnames(parameters.region_names);
+        end
+
         % Get number of atlas region
         number_of_regions = numel(all_regions);
 
@@ -40,14 +44,19 @@ function [parameters] = FindAtlasRegions(parameters)
 
         % For each region, 
         for regioni = 1:number_of_regions
-
+            
             % Get the value at of region so you can isolate the atlas
             % region
-            region_value = getfield(parameters.region_names, all_regions{regioni}); 
+            if isfield(parameters, 'region_order')
+                region_value = parameters.region_order{regioni,1};
 
+            else
+                region_value = getfield(parameters.region_names, all_regions{regioni}); 
+            end 
+           
             % Grab the atlas region. 
             region = parameters.atlas_masked == region_value;
-            
+    
             % Calculated center of mass (will be empty if mouse doesn't
             % have that region)>
             COM = centerOfMass(double(region));
@@ -156,6 +165,113 @@ function [parameters] = FindAtlasRegions(parameters)
           parameters.metrics.best_fit.names(sourcei).best = [];
        end 
     end
+
+    % Make a figure of 2 subplots: the COM and volume overlap metrics.
+    figure_metrics = figure; 
+    
+    % Take center of mass metric matrix, make NANs -1 for plotting
+    holder = parameters.metrics.comparison_matrix(:,:,1);
+    holder(isnan(holder)) = -1;
+
+    % Plot center of mass metric 
+    subplot(1,2,1); 
+    imagesc(holder);
+    colormap([1 1 1; flipud(parula(256))]); colorbar;
+    caxis([0 50]); % Limit the upper limit of the coloraxis, we don't care about specifics when it's very far away
+    xlabel('source number'); ylabel('atlas region, left right');
+    
+    % Reformat region names for better tick labels. 
+    tick_names = all_regions(1:2:end);
+    for i = 1:numel(tick_names)
+        tick_names{i} = replace(tick_names{i}, {'_L', '_', '1'}, {'', ' ', ''});
+    end
+    yticks([1:2:size(all_regions,1)]); yticklabels(tick_names);
+    title('COM distance');
+
+    % Plot overlap metric
+    subplot(1, 2, 2); 
+    imagesc(parameters.metrics.comparison_matrix(:,:,2));
+    colormap(gca, [1 1 1; parula(256)]); colorbar; 
+    xlabel('source number'); ylabel('atlas region, left right');
+    yticks([1:2:size(all_regions,1)]); yticklabels(tick_names);
+    title('overlap');
+
+    % Make a figure with 3 subplots: the color-coded atlas, the ICs that
+    % have a best fit with their color codes, the ICs that didn't fit
+    % with any. Use the "new_order" list of regions 
+    
+    % Make color-coded atlas. 
+
+    % Make a new holding image. 
+    atlas_color_coded = zeros(size(parameters.atlas)); 
+
+    % Change value to appropriate color-value.
+    region_colors = repelem(1:(number_of_regions/2), 2);
+
+    for regioni = 1:number_of_regions
+            
+        % Get the value at of region so you can isolate the atlas
+        % region
+        if isfield(parameters, 'region_order')
+            region_value = parameters.region_order{regioni,1};
+        else
+            region_value = getfield(parameters.region_names, all_regions{regioni}); 
+        end 
+
+        % Convert
+        atlas_color_coded(parameters.atlas == region_value) = region_colors(regioni);
+    end
+
+    figure_best_fit = figure;
+
+    % Draw atlas in first subplot; 
+    subplot(1,2,1); 
+    imagesc(atlas_color_coded); colormap(jet);
+    axis square;
+
+    % Draw agreeing & disagreeing sources with color-coding.
+    best_regions_color_coded = zeros(size(parameters.atlas));
+    not_fit_regions = atlas_color_coded;
+
+    for sourcei = 1:number_of_sources
+        
+        % Set up abstractable dimensions
+        S = repmat({':'},1, ndims(parameters.sources_artifacts_removed.sources));
+        S{parameters.sourcesDim} = sourcei; 
+
+        % Get out source
+        source = parameters.sources_artifacts_removed.sources(S{:});
+
+        % If there's a best fit region (not NaN)
+        if ~isnan(parameters.metrics.best_fit.indices(sourcei).best)
+   
+             % Add to color coding, from best maching atlas
+             % Get out best matching index
+             best_regions_color_coded(source > 0) = region_colors(parameters.metrics.best_fit.indices(sourcei).best); 
+
+        else
+            % If no best fit, plot over the atlas as gray (store as -1 for
+            % now); 
+            best_regions_color_coded(source > 0) = -1; 
+        end 
+
+    end 
+
+    % Plot agreeing regions.
+    subplot(1, 2, 2); 
+    imagesc(best_regions_color_coded); caxis([-1 max(region_colors)]);
+    colormap([0.5 0.5 0.5; 1 1 1; jet(max(region_colors))]); 
+    axis square;
+% 
+%     % Plot not- agreeing regions.
+%     subplot(1, 3, 3); 
+%     imagesc(not_fit_regions); caxis([0 max(region_colors)]);
+%     colormap([0.5 0.5 0.5; 1 1 1; jet(max(region_colors))]);
+%     axis square;
+
+    % Put figure handles into parameters structure.
+    parameters.figure_metrics = figure_metrics;
+    parameters.figure_best_fit = figure_best_fit;
 
 end 
 
