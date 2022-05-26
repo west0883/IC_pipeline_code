@@ -145,13 +145,27 @@ function [parameters] = RemoveArtifacts(parameters)
     indices = find(source == 0); 
     reference_image_brain(indices) = 0; 
 
+    % Make an overlay;
+    if ~isfield(parameters.sources_artifacts_removed, 'overlay') 
+
+        parameters.sources_artifacts_removed.overlay = zeros(size(source,1), size(source,2));
+        S = repmat({':'},1, ndims(parameters.sources_artifacts_removed.sources));
+        for i = 1: size(parameters.sources_artifacts_removed.sources, parameters.sourcesDim)
+            S{parameters.sourcesDim} = i; 
+            source_for_overlay = parameters.sources_artifacts_removed.sources(S{:});
+            indices = find(source_for_overlay > 0); 
+            parameters.sources_artifacts_removed.overlay(indices) = i;  
+        end 
+    end
+
     % ****Arrange figure****;
     
     % Count number of small subplots needed. Count reference image 2x for
-    % context & brain under IC images.
-    small_subplots = 0;
+    % context & brain under IC images. There is always at least 1 for the
+    % overlay.
+    small_subplots = 1;
     small_subplot_counter = 0;
-    small_subplots_fields = {'reference_image'; 'reference_image'; 'overlay'; 'original_sources'};
+    small_subplots_fields = {'reference_image'; 'reference_image'; 'original_sources'};
     for i = 1:numel(small_subplots_fields)
         if isfield(parameters, small_subplots_fields{i})
             small_subplots = small_subplots + 1; 
@@ -211,17 +225,16 @@ function [parameters] = RemoveArtifacts(parameters)
     end 
 
     % ** Draw a figure showing all sources together in an overlay.**
-    if isfield(parameters, 'overlay')
 
         % Increase counter of what small subplot you're on;
         small_subplot_counter = small_subplot_counter + 1; 
         
         % Pull overlay out so you aren't changing it every time.
-        overlay = parameters.overlay;
+        overlay = parameters.sources_artifacts_removed.overlay;
 
         % Make mask of current source 1+ the highest number, so it will be
         % plotted a set color every time. 
-        indices = overlay == source_number; 
+        indices = source > 0; 
         overlay(indices) = number_of_sources + 1; 
 
         % Make a color map for the overlay, with the current source as red.
@@ -235,7 +248,7 @@ function [parameters] = RemoveArtifacts(parameters)
         colormap(gca, cmap1); 
         title('(in red) with other sources');
         xticks([]); yticks([]); axis square;
-    end
+    
    
     % ** Draw a figure showing the original, un-thresholded source. ** 
     if isfield(parameters, 'original_sources')
@@ -319,8 +332,8 @@ function [parameters] = RemoveArtifacts(parameters)
     for i = 1: size(parameters.sources_artifacts_removed.sources, parameters.sourcesDim)
         S{parameters.sourcesDim} = i; 
         source_for_overlay = parameters.sources_artifacts_removed.sources(S{:});
-        parameters.sources_artifacts_removed.overlay(source_for_overlay > 0) = i;
-        
+        indices = find(source_for_overlay > 0); 
+        parameters.sources_artifacts_removed.overlay(indices) = i;  
     end 
 
     % Ask if the user wants to work on next source.
