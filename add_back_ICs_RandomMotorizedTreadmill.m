@@ -9,7 +9,8 @@
 % so it doesn't disrupt any previously saved artifact
 % removals.
 
-% For most mice, used:
+% All mice used:
+% 500 SVD components, 100 ICs.
 % parameters.amplitude_threshold = 3.5; 
 % parameters.minPixels = 150;
 % parameters.maxPixels = 5000; 
@@ -325,57 +326,151 @@ close all;
 
 % Notes:
 % (all ICs labeled from pre-artifacts removed)
-% (found one) IC 3 might have bilateral rostral M2 regions
-% (done) IC 8 might have corresponding right side one (well represented by
-% IC 10)
-% (done) IC 10 has potential M2 regions 
-% (done) IC 20 has left corresponding region
-% IC 21 has a dark circle around it?? Might have a medial M1-type region in
-% it , though
-% 23 & 24 might be artifacts, but they cover areas that have been suggested
-% as lateal rostral M2 in other ICs.
-% 30 should be expanded.Has a corresponding source on the right?
-% 31 has corresponding source on right.
+% nodes missing:
+% (don't do)Find more of node 1 (left side of raw IC 30? Or raw IC 79, which you originally threw out, or left of raw 38)
+% (don't do)2 -- right side of raw IC 21 (maybe + raw IC 18) & don't use 34; or use IC 34 as 2? 
+% (done) For 4: right side of 16
+% (done) 7 -- left side of raw IC 2, in a pinch
+% (done) 9  -- raw IC 12 
+% (done) 18 -- IC 1
+% (done) 19 -- Right side of raw 11 % might be raw ICs 27 + 28 (rough)
+% (done) 25 -- left side of raw IC 17
+% (doone) 27 -- (might have been incorporated into IC 12/node 23); divide IC 12
+% /node 23/ raw IC 10 based on boundaries suggested by left side of raw IC 29/ node 28?)
+% (don't do) 31 & 32 -- might actually be raw IC 4
+
 add_back = cell(1);
 original_IC_numbers = cell(1);
 raw_ICs = cell(1);
-load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\raw ICs\1100\sources100.mat', 'sources');
-load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\preprocessing\masks\masks_m1100.mat');
+load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\raw ICs\1100_first mask version\sources100.mat', 'sources');
+load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\preprocessing\masks\masks_m1100_firstversion.mat');
 % Fill masks, convert to absolte value
 sources = abs(FillMasks(sources', indices_of_mask, 256, 256));
 
-% left medial rostral M2
-source =  sum(sources(:, :,[2 9]), 3, 'omitnan')./2;
-figure; imagesc(source);
+% more of node 1
+% holder = NaN(256);
+% holder1 = NaN(256);
+% source =  sum(sources(:, :,[30 38]), 3, 'omitnan')./2;
+% figure; imagesc(source);
+% holder1() = source(); % Limit area
+% inds = find(holder1 > 2); % Threshold
+% holder(inds) = source(inds);
+% figure; imagesc(holder); colorbar; caxis([0 4]);
+% add_back{1} = holder;
+% original_IC_numbers{1} = NaN;
+% raw_ICs{1} = source;
+
+% New node 4
 holder = NaN(256);
 holder1 = NaN(256);
-holder1(1:100, 1:100) = source(1:100, 1:100); % Limit area
-inds = find(holder1 > 2.5); % Threshold
+source = sources(:,:, 16);
+figure; imagesc(source);
+holder1(1:88, 137:end) = source(1:88, 137:end); % Limit area
+inds = find(holder1 > 3); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{1} = holder;
-original_IC_numbers{1} = 2;
+original_IC_numbers{1} = 16;
 raw_ICs{1} = source;
 
-% better left lateral rostral M2
-source = sum(sources(:, :,[3 5 16 20]), 3, 'omitnan')./4;
+
+% Node 7
+source = sources(:,:, 2);
 figure; imagesc(source);
 holder = NaN(256);
 holder1 = NaN(256);
-holder1(1:80,1:65) = source(1:80 , 1:65); % Limit area
-inds = find(holder1 > 1.8); % Threshold
+holder1(66:116,36:79) = source(66:116,36:79); % Limit area
+inds = find(holder1 > 1); % Threshold
 holder(inds) = source(inds);
 figure; imagesc(holder); colorbar; caxis([0 4]);
 add_back{2} = holder;
-original_IC_numbers{2} = NaN;
+original_IC_numbers{2} = 2;
 raw_ICs{2} = source;
- 
-% Right medial M1-type? (maybe left in there, too)
-source = sources(:, :, 16);
+
+% Node 9
+holder = NaN(256);
+holder1 = NaN(256);
+source = sources(:,:, 12);
 figure; imagesc(source);
+holder1(30:110,70:126) = source(30:110,70:126); % Limit area
+inds = find(holder1 > 2); % Threshold
+holder(inds) = source(inds);
+figure; imagesc(holder); colorbar; caxis([0 4]);
+add_back{3} = holder;
+original_IC_numbers{3} = 12;
+raw_ICs{3} = source;
+
+% Node 18
+source = sources(:,:, 1);
+figure; imagesc(source);
+holder = NaN(256);
+holder1 = NaN(256);
+holder1(70:150,125:180) = source(70:150,125:180); % Limit area
+inds = find(holder1 > 1.5); % Threshold
+holder(inds) = source(inds);
+figure; imagesc(holder); colorbar; caxis([0 4]);
+add_back{4} = holder;
+original_IC_numbers{4} = 1;
+raw_ICs{4} = source;
+
+% Node 19
+% source =  sum(sources(:, :,[27 28 52 55 57:60 70:73]), 3, 'omitnan')./12;
+% figure; imagesc(source);
+% holder = NaN(256);
+% holder1 = NaN(256);
+% holder1(110:155,26:60) = source(110:155,26:60); % Limit area
+% inds = find(holder1 > 1.25 & holder1 < 2.5); % Threshold
+% holder(inds) = source(inds);
+% figure; imagesc(holder); colorbar; caxis([0 4]);
+% add_back{5} = holder;
+% original_IC_numbers{5} = NaN;
+% raw_ICs{5} = source;
+
+% Node 19-- right side of 11
+source = sources(:,:, 11);
+figure; imagesc(source);
+holder = NaN(256);
+holder1 = NaN(256);
+holder1(120:180, 1:60) = source(120:180, 1:60); % Limit area
+inds = find(holder1 > 1.75); % Threshold
+holder(inds) = source(inds);
+figure; imagesc(holder); colorbar; caxis([0 4]);
+add_back{5} = holder;
+original_IC_numbers{5} = 11;
+raw_ICs{5} = source;
+
+% Node 25
+source = sources(:, :,17);
+figure; imagesc(source);
+holder = NaN(256);
+holder1 = NaN(256);
+holder1(176:191, 45:72) = source(176:191, 45:72); % Limit area
+inds = find((holder1 > 0.3 )); % Threshold
+holder(inds) = source(inds);
+figure; imagesc(holder); colorbar; caxis([0 4]);
+add_back{6} = holder;
+original_IC_numbers{6} = 17;
+raw_ICs{6} = source;
+
+% Node 27
+source = sources(:, :,29);
+figure; imagesc(source);
+holder = NaN(256);
+holder1 = NaN(256);
+holder1(173:209, 1:45) = source(173:209, 1:45); % Limit area
+inds = find((holder1 > .8 )); % Threshold
+holder(inds) = source(inds);
+figure; imagesc(holder); colorbar; caxis([0 4]);
+add_back{7} = holder;
+original_IC_numbers{7} = 29;
+raw_ICs{7} = source;
 
 
+add_back_all{4} = add_back;
+original_IC_numbers_all{4} = original_IC_numbers;
+raw_ICs_all{4} = raw_ICs;
 
+close all;
 %%
 % Mouse 1106
 % Notes:
@@ -697,72 +792,20 @@ add_back_all{6} = add_back;
 original_IC_numbers_all{6} = original_IC_numbers;
 raw_ICs_all{6} = raw_ICs;
 
-%% Make overlay plots of these new additions to artifact- removed overlays to
-% check progress (DON'T SAVE YET)
-close all;
-
-% load mice_all
-load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\mice_all.mat');
-
-figure; 
-% For each mouse, 
-for mousei = 1:size(mice_all,2)
-    mouse = mice_all(mousei).name;
-
-    % If add_back_all isn't empty for that mouse
-    if ~isempty(add_back_all{mousei})
-        
-        % Load artifacts removed overlay
-        load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\' mouse '\sources.mat']);
-
-        % holder for overlay.
-        overlay = sources.overlay;
-
-        % Get maximum value already in overlay.
-        number_ics = max(max(overlay));
-
-        % For each IC added back in that mouse
-        for ici = 1: numel(add_back_all{mousei})
-            
-            % If not empty
-            if ~isempty(add_back_all{mousei}{ici})
-
-            
-
-                % Threshold & overlay 
-                new_source = add_back_all{mousei}{ici} > 0;
-                [new_source, ~] = CleanClust(new_source);
-               
-                % Add new source to overlay
-                overlay(find(new_source > 0)) = ici + number_ics;
-            end
-
-        end 
-
-        % Plot new overlay
-        subplot(2,3, mousei); imagesc(overlay); axis square; title(mouse);
-        xticks([]); yticks([]); colorbar;
-    end
-end
-
-% Save figure;
-savefig('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\added back.fig');
-
 %% Actually add back these ICs to artifacts removed matrices
-% *****DO ONLY ONCE*****
 % Applies CLeanClust function
 % load mice_all
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\mice_all.mat');
 % App
 % For each mouse, 
-for mousei = 1:size(mice_all,2)
+for mousei = 4 %:size(mice_all,2)
     mouse = mice_all(mousei).name;
 
     % If add_back_all isn't empty for that mouse
     if ~isempty(add_back_all{mousei})
         
         % Load artifacts removed.
-        load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\' mouse '\sources.mat']);
+        load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\' mouse '_first mask version\sources.mat']);
 
         % holder for overlay.
         overlay = sources.overlay;
@@ -819,7 +862,7 @@ for mousei = 1:size(mice_all,2)
         save(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback staging\' mouse '\sources.mat'], 'sources');
     
         % *** Now do it all for the regularized folder
-        load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\regularized ICs 150 amp 3.5 two conditionals small 2.5 large 1\' mouse '\sources100.mat']);
+        load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\regularized ICs 150 amp 3.5 two conditionals small 2.5 large 1\' mouse '_first mask version\sources100.mat']);
         
         % For each IC added back in that mouse
         for ici = 1: numel(add_back_all{mousei})
@@ -851,4 +894,74 @@ for mousei = 1:size(mice_all,2)
         mkdir(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\regularized ICs 150 amp 3.5 two conditionals small 2.5 large 1\post addback\' mouse '\']);
         save(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\regularized ICs 150 amp 3.5 two conditionals small 2.5 large 1\post addback\' mouse '\sources100.mat'], 'sources');
     end
+end 
+
+%% Make overlay plots of these new additions to artifact- removed overlays to
+% check progress (DON'T SAVE YET)
+% close all;
+% 
+% % load mice_all
+% load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\mice_all.mat');
+% 
+% mice_all = mice_all([1:3, 5, 6]);
+% figure; 
+% % For each mouse, 
+% for mousei = 1:size(mice_all,2)
+%     mouse = mice_all(mousei).name;
+% 
+%     % If add_back_all isn't empty for that mouse
+%     if ~isempty(add_back_all{mousei})
+%         
+%         % Load artifacts removed overlay. 
+%         load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback staging\' mouse '\sources.mat']);
+% 
+%         % holder for overlay.
+%         overlay = sources.overlay;
+% 
+%         % Get maximum value already in overlay.
+%         number_ics = max(max(overlay));
+% 
+%         % For each IC added back in that mouse
+%         for ici = 1: numel(add_back_all{mousei})
+%             
+%             % If not empty
+%             if ~isempty(add_back_all{mousei}{ici})
+% 
+%             
+% 
+%                 % Threshold & overlay 
+%                 new_source = add_back_all{mousei}{ici} > 0;
+%                 [new_source, ~] = CleanClust(new_source);
+%                
+%                 % Add new source to overlay
+%                 overlay(find(new_source > 0)) = ici + number_ics;
+%             end
+% 
+%         end 
+% 
+%         % Plot new overlay
+%         subplot(2,3, mousei); imagesc(overlay); axis square; title(mouse);
+%         xticks([]); yticks([]); colorbar;
+%     end
+% end
+% 
+% % Save figure;
+% savefig('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\added back.fig');
+% 
+
+%% Plot overlays from post addback staging
+
+% load mice_all
+load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\mice_all.mat');
+
+mice_all = mice_all([1:3, 5, 6]);
+figure; 
+% For each mouse, 
+for mousei = 1:size(mice_all,2)
+    mouse = mice_all(mousei).name;
+    
+    % Load artifacts removed overlay. 
+    load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback staging\' mouse '\sources.mat']);
+    subplot(2,3,mousei); 
+    imagesc(sources.overlay); title(mouse);
 end 
