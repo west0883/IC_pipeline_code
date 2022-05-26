@@ -203,7 +203,7 @@ function [parameters] = FindAtlasRegions(parameters)
     % Make color-coded atlas. 
 
     % Make a new holding image. 
-    atlas_color_coded = zeros(size(parameters.atlas)); 
+    atlas_color_coded = zeros(size(parameters.atlas_masked)); 
 
     % Change value to appropriate color-value.
     region_colors = repelem(1:(number_of_regions/2), 2);
@@ -219,7 +219,7 @@ function [parameters] = FindAtlasRegions(parameters)
         end 
 
         % Convert
-        atlas_color_coded(parameters.atlas == region_value) = region_colors(regioni);
+        atlas_color_coded(parameters.atlas_masked == region_value) = region_colors(regioni);
     end
 
     figure_best_fit = figure;
