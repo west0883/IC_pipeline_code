@@ -53,7 +53,7 @@ load([parameters.dir_exper 'mice_all.mat']);
 % ****Change here if there are specific mice, days, and/or stacks you want to work with**** 
 parameters.mice_all=mice_all;
 
-parameters.mice_all=parameters.mice_all(2);
+parameters.mice_all=parameters.mice_all(1:2);
 
 % ****************************************
 % ***Parameters.*** 
@@ -149,7 +149,7 @@ parameters.originalSourcesDim = 1;
 
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'34:50'}, 'source_iterator'};
+                                  'source', {'1:50'}, 'source_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
@@ -167,11 +167,6 @@ parameters.loop_list.things_to_load.reference_image.dir = {[parameters.dir_exper
 parameters.loop_list.things_to_load.reference_image.filename= {'reference_image.mat'};
 parameters.loop_list.things_to_load.reference_image.variable= {'reference_image'};
 parameters.loop_list.things_to_load.reference_image.level = 'mouse';
-
-parameters.loop_list.things_to_load.overlay.dir = {[parameters.dir_exper 'spatial segmentation\regularized ICs_' num2str(parameters.area_threshold) 'pixels\'], 'mouse', '\'};
-parameters.loop_list.things_to_load.overlay.filename= {['sources' num2str(parameters.num_sources) '_overlay.mat']};
-parameters.loop_list.things_to_load.overlay.variable= {'overlay'};
-parameters.loop_list.things_to_load.overlay.level = 'mouse';
 
 % [Right now, code assumes raw sources are in same file, I think it still
 % works if it's each source separate.]
