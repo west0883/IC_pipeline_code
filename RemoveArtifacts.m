@@ -124,17 +124,21 @@ function [parameters] = RemoveArtifacts(parameters)
     % Put pixels of original IC into first dimension
     original_source = permute(original_source,[parameters.originalSourcesPixelsDim setxor(parameters.originalSourcesPixelsDim, 1:ndims(original_source))]);
 
-    % Fill the mask of the original source. 
-    original_source = FillMasks(original_source, parameters.indices_of_mask, size(source,1), size(source,2));
+    % If there was a mask loaded, 
+    if isfield(parameters, 'indices_of_mask')
+        
+        % Fill the mask of the original source. 
+        original_source = FillMasks(original_source, parameters.indices_of_mask, size(source,1), size(source,2));
+
+        % Apply the mask to the reference image
+        holder = NaN(size(parameters.reference_image));
+        holder(parameters.indices_of_mask) = parameters.reference_image(parameters.indices_of_mask);
+        reference_image = holder; 
+    end 
 
     % Make find indices where the source is.
     indices = find(source > 0);
-
-    % Apply the mask to the reference image
-    holder = NaN(size(parameters.reference_image));
-    holder(parameters.indices_of_mask) = parameters.reference_image(parameters.indices_of_mask);
-    reference_image = holder; 
-
+    
     % For the contex image, put the source in the reference image. 
     reference_image_context = reference_image;
     reference_image_context(indices) = source(indices);
@@ -148,7 +152,15 @@ function [parameters] = RemoveArtifacts(parameters)
     % Make an overlay;
     if ~isfield(parameters.sources_artifacts_removed, 'overlay') 
 
-        parameters.sources_artifacts_removed.overlay = zeros(size(source,1), size(source,2));
+        % If there's a mask, make the masked-out areas -1, everything else
+        % 0.
+        if isfield(parameters, 'indices_of_mask')
+            parameters.sources_artifacts_removed.overlay = ones(parameters.yDim, parameters.xDim)*-1;
+            parameters.sources_artifacts_removed.overlay(parameters.indices_of_mask) = 0; 
+        else  % Otherwise, make all of background 0
+            parameters.sources_artifacts_removed.overlay = zeros(size(source,1), size(source,2));
+        end 
+
         S = repmat({':'},1, ndims(parameters.sources_artifacts_removed.sources));
         for i = 1: size(parameters.sources_artifacts_removed.sources, parameters.sourcesDim)
             S{parameters.sourcesDim} = i; 
@@ -237,9 +249,14 @@ function [parameters] = RemoveArtifacts(parameters)
         indices = source > 0; 
         overlay(indices) = number_of_sources + 1; 
 
-        % Make a color map for the overlay, with the current source as red.
-        cmap1 = [1 1 1; 0.50 0.50 0.50; parula(number_of_sources); 1 0 0];
-        
+        % Make a color map for the overlay, with the current source as
+        % red. Depends on if there was a mask applied
+        % If there was a mask, make it gray. 
+        if isfield(parameters, 'indices_of_mask')
+             cmap1 = [1 1 1; 0.50 0.50 0.50; parula(number_of_sources); 1 0 0];
+        else
+            cmap1 = [1 1 1; parula(number_of_sources)];
+        end
         [subplots, ~, ~] = calculate_subplots(small_subplots, small_subplot_counter);
 
         % Plot 
@@ -261,7 +278,10 @@ function [parameters] = RemoveArtifacts(parameters)
         % Plot 
         subplot(subplots(1), subplots(2),subplots(3));
         img1 = imagesc(original_source);    
-        colormap(gca, parula(256)); caxis([0 10]); 
+        
+        % Make a color map for the original source. 
+        cmap1 = [parula(512)];
+        colormap(gca, cmap1); caxis([0 10]); 
         title('corresponding raw source');
         xticks([]); yticks([]); axis square;
     end
@@ -327,7 +347,14 @@ function [parameters] = RemoveArtifacts(parameters)
     parameters.sources_artifacts_removed.originalICNumbers =originalSourceNumbers;
 
     % Make an overlay (from scratch every time?)
-    parameters.sources_artifacts_removed.overlay = zeros(size(source,1), size(source,2));
+    % If there's a mask, make the masked-out areas -1, everything else 0.
+    if isfield(parameters, 'indices_of_mask')
+        parameters.sources_artifacts_removed.overlay = ones(parameters.yDim, parameters.xDim)*-1;
+        parameters.sources_artifacts_removed.overlay(parameters.indices_of_mask) = 0; 
+    else  % Otherwise, make all of background 0
+        parameters.sources_artifacts_removed.overlay = zeros(size(source,1), size(source,2));
+    end 
+    
     S = repmat({':'},1, ndims(parameters.sources_artifacts_removed.sources));
     for i = 1: size(parameters.sources_artifacts_removed.sources, parameters.sourcesDim)
         S{parameters.sourcesDim} = i; 
