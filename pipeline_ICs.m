@@ -588,6 +588,11 @@ manual_region_assignments.m;
 % Using the manual assignments, reorder the source colormaps.
 % (For now assumes sources are listed in 3D); 
 
+% Always clear loop list first. 
+if isfield(parameters, 'loop_list')
+parameters = rmfield(parameters,'loop_list');
+end
+
 % Loop variables; iterate through mice, sources
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
