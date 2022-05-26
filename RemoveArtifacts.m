@@ -340,7 +340,7 @@ function [parameters] = RemoveArtifacts(parameters)
             next_iterator_up = parameters.values{end-1};
             next_max_iteration = parameters.maxIterations.numbers_only(end-1);
     
-            if next_iterator_up >= next_max_iteration
+            if next_iterator_up < next_max_iteration
 
                 user_answer1= inputdlg(['Do you want to work on the next data set? y = yes, n = no'], 'User input', 1,{'n'}, opts); 
             
