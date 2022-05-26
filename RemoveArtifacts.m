@@ -31,6 +31,8 @@ function [parameters] = RemoveArtifacts(parameters)
    
     % Check to see if there was an existing artifacts removed structure. If
     % not, establish all fields.
+    % This still works with looping through sources b/c this is only called
+    % before first source. 
     if ~isfield(parameters, 'sources_artifacts_removed')
     
        % Initialize list of indices to remove.
@@ -161,15 +163,21 @@ function [parameters] = RemoveArtifacts(parameters)
 
         close all; 
 
-        % Ask user if they want to work on next source.
-        user_answer1= inputdlg(['Do you want to work on the next source? y = yes, n = no']); 
-
-        % Convert the user's answer into a value
-        answer1=user_answer1{1};
+        % If there's more than one source in this data set, ask user if they want to work on next source.
+        % (If source is in its own file, don't want to ask user if they
+        % want to continue twice per source; Don't ask twice at end of a dataset). 
+        if size(sources, parameters.sourcesDim) ~= 1 && sourcei ~= size(sources, parameters.sourcesDim)
+            user_answer1= inputdlg(['Do you want to work on the next source? y = yes, n = no']); 
     
-        % If user didn't want to continue to next source, break for loop
-        if strcmp(answer1, 'n')
-            break
+            % Convert the user's answer into a value
+            answer1=user_answer1{1};
+    
+            % If user didn't want to continue to next mouse, set continue flag to false
+            if strcmp(answer1, 'y')
+                parameters.continue_flag = true;
+            else    
+                parameters.continue_flag = false;
+            end
         end
     end
    
@@ -181,16 +189,18 @@ function [parameters] = RemoveArtifacts(parameters)
     parameters.sources_artifacts_removed.originalICNumber = parameters.sources.originalICNumber_domainsSplit';
     parameters.sources_artifacts_removed.originalICNumber(parameters.sources_artifacts_removed.sources_removed) = [];
 
-    % Ask user if they want to work on next dataset 
-    user_answer1= inputdlg(['Do you want to work on the next data set? y = yes, n = no']); 
-
-    % Convert the user's answer into a value
-    answer1=user_answer1{1};
+    % If this was the max source number, ask user if they want to work on next dataset 
+    if sourcei == size(sources, parameters.sourcesDim) 
+        user_answer1= inputdlg(['Do you want to work on the next data set? y = yes, n = no']); 
     
-    % If user didn't want to continue to next mouse, set continue flag to false
-    if strcmp(answer1, 'y')
-        parameters.continue_flag = true;
-    else    
-        parameters.continue_flag = false;
-    end
+        % Convert the user's answer into a value
+        answer1=user_answer1{1};
+        
+        % If user didn't want to continue to next mouse, set continue flag to false
+        if strcmp(answer1, 'y')
+            parameters.continue_flag = true;
+        else    
+            parameters.continue_flag = false;
+        end
+    end 
 end 
