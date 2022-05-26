@@ -270,22 +270,6 @@ function [parameters] = RemoveArtifacts(parameters)
     end
 
     close all; 
-
-    % Ask if the user wants to work on next source.
-    user_answer1= inputdlg(['Do you want to work on the next source? y = yes, n = no'], 'User input', 1,{''}, opts); 
-
-    % Convert the user's answer into a value
-    answer1=user_answer1{1};
-
-    % If user didn't want to continue to next mouse, set continue flag to false
-    if strcmp(answer1, 'y')
-        parameters.continue_flag{end} = true;
-    else    
-        parameters.continue_flag{end} = false;
-
-        % Tell RunAnalysis to save this iteration
-        parameters.save_now = true;
-    end
    
     % Remove sources that should be removed. (Do this every time, is okay
     % because sources_artifacts_removed.sources is re-created each time.)
@@ -296,6 +280,22 @@ function [parameters] = RemoveArtifacts(parameters)
     parameters.sources_artifacts_removed.originalICNumber = parameters.sources.originalICNumber_domainsSplit';
     parameters.sources_artifacts_removed.originalICNumber(parameters.sources_artifacts_removed.sources_removed) = [];
 
+    % Ask if the user wants to work on next source.
+    user_answer1= inputdlg(['Do you want to work on the next source? y = yes, n = no'], 'User input', 1,{''}, opts); 
+
+    % Convert the user's answer into a value
+    answer1=user_answer1{1};
+
+    % If user didn't want to continue to next source, set continue flag to false
+    if strcmp(answer1, 'y')
+        parameters.continue_flag{end} = true;
+    else    
+        parameters.continue_flag{end} = false;
+
+        % Tell RunAnalysis to save this iteration
+        parameters.save_now = true;
+    end
+    
     % If this was the max source number & there ask user if they want to work on next dataset; Don't ask if there aren't multiple levels of iterators. 
     if source_iterator == number_of_sources && numel(parameters.continue_flag) > 1
         user_answer1= inputdlg(['Do you want to work on the next data set? y = yes, n = no'], 'User input', 1,{''}, opts); 
