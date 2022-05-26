@@ -335,7 +335,7 @@ function [parameters] = RemoveArtifacts(parameters)
         parameters.sources_artifacts_removed.sources(S{:}) = source;
     end
 
-    close all; 
+    close fig; 
    
     % Remove sources that should be removed. (Do this every time, is okay
     % because sources_artifacts_removed.sources is re-created each time.)
