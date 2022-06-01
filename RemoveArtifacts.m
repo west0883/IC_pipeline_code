@@ -339,7 +339,7 @@ function [parameters] = RemoveArtifacts(parameters)
     % *** Ask if the whole IC should be thrown out.***
     % Arrange input dialogue options-- allowing for interaction with
     % figures
-    if isfield(parameters.remove_entire_sources) && parameters.remove_entire_sources
+    if isfield(parameters, 'remove_entire_sources') && parameters.remove_entire_sources
         
         opts.WindowStyle = 'normal';
         user_answer1= inputdlg(['Do you want to throw out this entire source as an artifact? y=yes, n=no'], 'User input', 1,{'n'}, opts); 
