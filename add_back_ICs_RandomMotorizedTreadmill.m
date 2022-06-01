@@ -792,20 +792,126 @@ add_back_all{6} = add_back;
 original_IC_numbers_all{6} = original_IC_numbers;
 raw_ICs_all{6} = raw_ICs;
 
+%%
+% Mouse 539
+% Notes:
+% (all ICs labeled from pre-artifacts removed)
+% 2 is part of left part of 1 (node 17 & 18)
+% 3 is part of left part of 1 (node 17 & 18)
+% 4 is part of 1 (node 17 & 18)
+% 5 is part of 1 (node 17 & 18)
+% 6 is either a blood vessel artifact or retrosplenial
+% There's more of 12 in raw
+% 15 is part of 14 (node 6 or 14)
+% 16 (node 25) might have a right side in it (node 26)
+% 17 (node 21) has a strong right side in it (node 22)
+% There's more of 25 (maybe node 3)
+% There's more of 29
+% 33 could maybe be divided into node 5 & 1
+% There's a right part of 36 
+
+%%
+% Mouse 1099
+% Notes:
+% (all ICs labeled from pre-artifacts removed)
+
+% (done) IC 14 has a matching raw on the other side
+% 16 goes along with 17 on other side
+% 19 and 20 are same source
+% (done) 31 has a right side version (retrosplenial/node 32)
+% (done) There's more of IC 45 in raw
+% (done) There's a right side of 51 (also retrosplenial)
+% (done) There's more of 55. Put it with node 5
+% IC 32 is node 1
+
+add_back = cell(1);
+original_IC_numbers = cell(1);
+raw_ICs = cell(1);
+
+load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\raw ICs\1099\sources100.mat', 'sources');
+load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\preprocessing\masks\masks_m1099.mat');
+% Fill masks, convert to absolte value
+sources = abs(FillMasks(sources', indices_of_mask, 256, 256));
+
+source =  sources(:, :,13);
+figure; imagesc(source);
+holder = NaN(256);
+holder1 = NaN(256);
+holder1(140:167, 178:204) = source(140:167, 178:204); % Limit area
+inds = find(holder1 > 2.5); % Threshold
+holder(inds) = source(inds);
+figure; imagesc(holder); colorbar; caxis([0 4]);
+add_back{1} = holder;
+original_IC_numbers{1} = 13;
+raw_ICs{1} = source;
+
+source =  sources(:, :,26);
+figure; imagesc(source);
+holder = NaN(256);
+holder1 = NaN(256);
+holder1(124:204, 135:167) = source(124:204, 135:167); % Limit area
+inds = find(holder1 > 2.0); % Threshold
+holder(inds) = source(inds);
+figure; imagesc(holder); colorbar; caxis([0 4]);
+add_back{2} = holder;
+original_IC_numbers{2} = 26;
+raw_ICs{2} = source;
+
+source =  sources(:, :,39);
+figure; imagesc(source);
+holder = NaN(256);
+holder1 = NaN(256);
+holder1(120:170, 7:32) = source(120:170, 7:32); % Limit area
+inds = find(holder1 > 3.5); % Threshold
+holder(inds) = source(inds);
+figure; imagesc(holder); colorbar; caxis([0 4]);
+add_back{3} = holder;
+original_IC_numbers{3} = 39;
+raw_ICs{3} = source;
+
+source =  sources(:, :,48);
+figure; imagesc(source);
+holder = NaN(256);
+holder1 = NaN(256);
+holder1(172:223, 138:168) = source(172:223, 138:168); % Limit area
+inds = find(holder1 > 1.5); % Threshold
+holder(inds) = source(inds);
+figure; imagesc(holder); colorbar; caxis([0 4]);
+add_back{4} = holder;
+original_IC_numbers{4} = 48;
+raw_ICs{4} = source;
+
+% More of node 9
+source =  sources(:, :,14);
+figure; imagesc(source);
+holder = NaN(256);
+holder1 = NaN(256);
+holder1(46:106, 82:120) = source(46:106, 82:120); % Limit area
+inds = find(holder1 > 3.5); % Threshold
+holder(inds) = source(inds);
+figure; imagesc(holder); colorbar; caxis([0 4]);
+add_back{5} = holder;
+original_IC_numbers{5} = 14;
+raw_ICs{5} = source;
+
+add_back_all{8} = add_back;
+original_IC_numbers_all{8} = original_IC_numbers;
+raw_ICs_all{8} = raw_ICs;
+
 %% Actually add back these ICs to artifacts removed matrices
 % Applies CLeanClust function
 % load mice_all
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\mice_all.mat');
 % App
 % For each mouse, 
-for mousei = 4 %:size(mice_all,2)
+for mousei = 8 %:size(mice_all,2)
     mouse = mice_all(mousei).name;
 
     % If add_back_all isn't empty for that mouse
     if ~isempty(add_back_all{mousei})
         
         % Load artifacts removed.
-        load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\' mouse '_first mask version\sources.mat']);
+        load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\' mouse '\sources.mat']);
 
         % holder for overlay.
         overlay = sources.overlay;
@@ -862,7 +968,7 @@ for mousei = 4 %:size(mice_all,2)
         save(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback staging\' mouse '\sources.mat'], 'sources');
     
         % *** Now do it all for the regularized folder
-        load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\regularized ICs 150 amp 3.5 two conditionals small 2.5 large 1\' mouse '_first mask version\sources100.mat']);
+        load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\regularized ICs 150 amp 3.5 two conditionals small 2.5 large 1\' mouse '\sources100.mat']);
         
         % For each IC added back in that mouse
         for ici = 1: numel(add_back_all{mousei})
@@ -954,7 +1060,7 @@ end
 % load mice_all
 load('Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\mice_all.mat');
 
-mice_all = mice_all([1:3, 5, 6]);
+mice_all = mice_all([1:6, 8]);
 figure; 
 % For each mouse, 
 for mousei = 1:size(mice_all,2)
@@ -962,6 +1068,6 @@ for mousei = 1:size(mice_all,2)
     
     % Load artifacts removed overlay. 
     load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback staging\' mouse '\sources.mat']);
-    subplot(2,3,mousei); 
+    subplot(3,3,mousei); 
     imagesc(sources.overlay); title(mouse);
 end 
