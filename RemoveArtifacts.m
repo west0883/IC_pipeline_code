@@ -70,7 +70,7 @@ function [parameters] = RemoveArtifacts(parameters)
        % If there is no sources_artifacts_removed, check for if
        % sources_artifacts_removed_old exists. If it does, use that as
        % sources_artifacts_removed.
-       if isfield(parameters, 'sources_artifacts_removed_old')
+       if isfield(parameters, 'sources_artifacts_removed_old') && ~isempty(parameters.sources_artifacts_removed_old)
            parameters.sources_artifacts_removed = parameters.sources_artifacts_removed_old; 
 
        else
@@ -122,7 +122,7 @@ function [parameters] = RemoveArtifacts(parameters)
             mask_flat=existing_masks(:,:,i);
             existing_mask_indices=[existing_mask_indices; find(mask_flat)]; 
         end
-      
+        
         current_source = parameters.sources_artifacts_removed.sources(:,:, ii);
         current_source(existing_mask_indices) = 0;
         parameters.sources_artifacts_removed.sources(:,:, ii) = current_source;
