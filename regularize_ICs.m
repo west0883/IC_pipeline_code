@@ -26,7 +26,7 @@ function []=regularize_ICs(parameters)
 
         % Check which dimension the pixels vs sources are in. Flip the sources so each IC is its own column. (pixels x source
         % number). 
-        source_dimension = find(size(sources = parameters.num_sources));
+        source_dimension = find(size(sources) == parameters.num_sources);
         if source_dimension == 1
             sources = permute(sources, [2 source_dimension setxor([2 source_dimension], 1:ndims(sources))]);
         end
