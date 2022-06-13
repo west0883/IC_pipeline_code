@@ -143,75 +143,75 @@ regularize_ICs(parameters);
 
 %% ***PRE ADDBACK***: Remove IC artifacts (interactive)
 % 
-parameters.amplitude_threshold = 3.5; % 3.5
-parameters.minPixels = 150; % 150
-parameters.large_component_conditional_zscore_flag = true;
-parameters.maxPixels = 5000; 
-parameters.large_component_conditional_zscore_thresh = 1;
-parameters.small_component_conditional_zscore_flag = true;
-parameters.small_component_conditional_zscore_thresh = 2.5;
-
-% Use second (right) monitor for figures, if available?
-parameters.second_monitor = false;
-
-% Always clear loop list first. 
-if isfield(parameters, 'loop_list')
-parameters = rmfield(parameters,'loop_list');
-end
-
-% Dimension different sources are in.
-parameters.sourcesDim = 3;
-
-% Dimension the pixels dimension, different sources dimension of original data.
-parameters.originalSourcesPixelsDim = 2; 
-parameters.originalSourcesDim = 1; 
-
-% Loop variables
-parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'1:70'}, 'source_iterator'};
-parameters.loop_variables.mice_all = parameters.mice_all;
-
-parameters.remove_entire_sources = true;
-
-
-% Input values
-parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs ' ... 
-                             num2str(parameters.minPixels) ' amp ' num2str(parameters.amplitude_threshold) ' two conditionals small ' num2str(parameters.small_component_conditional_zscore_thresh) ...
-                              ' large ' num2str(num2str(parameters.large_component_conditional_zscore_thresh)) '\'], 'mouse', '\'};
-parameters.loop_list.things_to_load.sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
-parameters.loop_list.things_to_load.sources.variable= {'sources'};
-parameters.loop_list.things_to_load.sources.level = 'mouse';
-
-parameters.loop_list.things_to_load.indices_of_mask.dir = {[parameters.dir_exper 'preprocessing\masks\']};
-parameters.loop_list.things_to_load.indices_of_mask.filename= {'masks_m', 'mouse', '.mat'};
-parameters.loop_list.things_to_load.indices_of_mask.variable= {'indices_of_mask'}; 
-parameters.loop_list.things_to_load.indices_of_mask.level = 'mouse';
-
-parameters.loop_list.things_to_load.reference_image.dir = {[parameters.dir_exper 'preprocessing\representative images\'], 'mouse', '\'};
-parameters.loop_list.things_to_load.reference_image.filename= {'reference_image.mat'};
-parameters.loop_list.things_to_load.reference_image.variable= {'reference_image'};
-parameters.loop_list.things_to_load.reference_image.level = 'mouse';
-
-% [Right now, code assumes raw sources are in same file, I think it still
-% works if it's each source separate.]
-parameters.loop_list.things_to_load.original_sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\raw ICs\'], 'mouse', '\'};
-parameters.loop_list.things_to_load.original_sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
-parameters.loop_list.things_to_load.original_sources.variable= {'sources'};
-parameters.loop_list.things_to_load.original_sources.level = 'mouse';
-
-% (for any existing artifact removals)
-parameters.loop_list.things_to_load.sources_artifacts_removed_old.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\'], 'mouse', '\'};
-parameters.loop_list.things_to_load.sources_artifacts_removed_old.filename = {'sources.mat'};
-parameters.loop_list.things_to_load.sources_artifacts_removed_old.variable= {'sources'};
-parameters.loop_list.things_to_load.sources_artifacts_removed_old.level = 'mouse';
-
-% Output values
-parameters.loop_list.things_to_save.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\'], 'mouse', '\'};
-parameters.loop_list.things_to_save.sources_artifacts_removed.filename = {'sources.mat'};
-parameters.loop_list.things_to_save.sources_artifacts_removed.variable= {'sources'};
-parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'source';
-
-RunAnalysis({@RemoveArtifacts}, parameters);
+% parameters.amplitude_threshold = 3.5; % 3.5
+% parameters.minPixels = 150; % 150
+% parameters.large_component_conditional_zscore_flag = true;
+% parameters.maxPixels = 5000; 
+% parameters.large_component_conditional_zscore_thresh = 1;
+% parameters.small_component_conditional_zscore_flag = true;
+% parameters.small_component_conditional_zscore_thresh = 2.5;
+% 
+% % Use second (right) monitor for figures, if available?
+% parameters.second_monitor = false;
+% 
+% % Always clear loop list first. 
+% if isfield(parameters, 'loop_list')
+% parameters = rmfield(parameters,'loop_list');
+% end
+% 
+% % Dimension different sources are in.
+% parameters.sourcesDim = 3;
+% 
+% % Dimension the pixels dimension, different sources dimension of original data.
+% parameters.originalSourcesPixelsDim = 2; 
+% parameters.originalSourcesDim = 1; 
+% 
+% % Loop variables
+% parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
+%                                   'source', {'1:70'}, 'source_iterator'};
+% parameters.loop_variables.mice_all = parameters.mice_all;
+% 
+% parameters.remove_entire_sources = true;
+% 
+% 
+% % Input values
+% parameters.loop_list.things_to_load.sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\regularized ICs ' ... 
+%                              num2str(parameters.minPixels) ' amp ' num2str(parameters.amplitude_threshold) ' two conditionals small ' num2str(parameters.small_component_conditional_zscore_thresh) ...
+%                               ' large ' num2str(num2str(parameters.large_component_conditional_zscore_thresh)) '\'], 'mouse', '\'};
+% parameters.loop_list.things_to_load.sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
+% parameters.loop_list.things_to_load.sources.variable= {'sources'};
+% parameters.loop_list.things_to_load.sources.level = 'mouse';
+% 
+% parameters.loop_list.things_to_load.indices_of_mask.dir = {[parameters.dir_exper 'preprocessing\masks\']};
+% parameters.loop_list.things_to_load.indices_of_mask.filename= {'masks_m', 'mouse', '.mat'};
+% parameters.loop_list.things_to_load.indices_of_mask.variable= {'indices_of_mask'}; 
+% parameters.loop_list.things_to_load.indices_of_mask.level = 'mouse';
+% 
+% parameters.loop_list.things_to_load.reference_image.dir = {[parameters.dir_exper 'preprocessing\representative images\'], 'mouse', '\'};
+% parameters.loop_list.things_to_load.reference_image.filename= {'reference_image.mat'};
+% parameters.loop_list.things_to_load.reference_image.variable= {'reference_image'};
+% parameters.loop_list.things_to_load.reference_image.level = 'mouse';
+% 
+% % [Right now, code assumes raw sources are in same file, I think it still
+% % works if it's each source separate.]
+% parameters.loop_list.things_to_load.original_sources.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\raw ICs\'], 'mouse', '\'};
+% parameters.loop_list.things_to_load.original_sources.filename= {['sources' num2str(parameters.num_sources) '.mat']};
+% parameters.loop_list.things_to_load.original_sources.variable= {'sources'};
+% parameters.loop_list.things_to_load.original_sources.level = 'mouse';
+% 
+% % (for any existing artifact removals)
+% parameters.loop_list.things_to_load.sources_artifacts_removed_old.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\'], 'mouse', '\'};
+% parameters.loop_list.things_to_load.sources_artifacts_removed_old.filename = {'sources.mat'};
+% parameters.loop_list.things_to_load.sources_artifacts_removed_old.variable= {'sources'};
+% parameters.loop_list.things_to_load.sources_artifacts_removed_old.level = 'mouse';
+% 
+% % Output values
+% parameters.loop_list.things_to_save.sources_artifacts_removed.dir = {[parameters.dir_exper 'spatial segmentation\500 SVD components\artifacts removed conditional thresholding\pre addback\'], 'mouse', '\'};
+% parameters.loop_list.things_to_save.sources_artifacts_removed.filename = {'sources.mat'};
+% parameters.loop_list.things_to_save.sources_artifacts_removed.variable= {'sources'};
+% parameters.loop_list.things_to_save.sources_artifacts_removed.level = 'source';
+% 
+% RunAnalysis({@RemoveArtifacts}, parameters);
 
 %% Plot IC overlays together
 
@@ -265,9 +265,9 @@ RunAnalysis({@RemoveArtifacts}, parameters);
 % parameters.originalSourcesPixelsDim = 2; 
 % parameters.originalSourcesDim = 1; 
 % 
-% % Loop variables
+% % Loop variables % delete 16 & 45 (post-add back & removed)
 % parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-%                                   'source', {'18:70'}, 'source_iterator'};
+%                                   'source', {'45:70'}, 'source_iterator'};
 % parameters.loop_variables.mice_all = parameters.mice_all;
 % 
 % % Input values
@@ -329,13 +329,17 @@ parameters.small_component_conditional_zscore_thresh = 2.5;
 % Dimension different sources are in.
 parameters.sourcesDim = 3;
 
+parameters.remove_entire_sources = false;
+parameters.use_darkness_threshold = true;
+parameters.draw_artifact_masks = true;
+
 % Dimension the pixels dimension, different sources dimension of original data.
 parameters.originalSourcesPixelsDim = 2; 
 parameters.originalSourcesDim = 1; 
 
 % Loop variables
 parameters.loop_list.iterators = {'mouse', {'loop_variables.mice_all(:).name'}, 'mouse_iterator';
-                                  'source', {'1:70'}, 'source_iterator'};
+                                  'source', {'32:70'}, 'source_iterator'};
 parameters.loop_variables.mice_all = parameters.mice_all;
 
 % Input values
@@ -626,10 +630,9 @@ RunAnalysis({@ReorderSources}, parameters);
 
 %% Make a reordered overlay. 
 
-[subplot_rows, subplot_columns] = OptimizeSubplotNumbers(numel(mice_all(:)));
-
-figure; 
-for i = 1:size(mice_all(:))
+fig = figure; 
+fig.WindowState = 'maximized';
+for i = [1:6 8]
     mouse = mice_all(i).name;
     
     load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\manual assignments\' mouse '\sources_reordered.mat']);
@@ -640,7 +643,7 @@ for i = 1:size(mice_all(:))
        indices = find(sources_thresholded(:,:, ici)); 
        overlay(indices) = ici; 
     end 
-    subplot(subplot_rows, subplot_columns, i); imagesc(overlay); axis square; title(mouse); colorbar; colormap([1 1 1; parula(size(sources,3))]);
+    subplot(3, 3, i); imagesc(overlay); axis square; title(mouse); colorbar; colormap([1 1 1; parula(size(sources,3))]);
     xticks([]); yticks([]);
     savefig(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\manual assignments\sources_reordered_allmice.fig'])
 end 
