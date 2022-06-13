@@ -464,6 +464,84 @@ end
 save([dir_out 'region_assignments.mat'], 'region_assignments')
 
 
+%% Mouse 1099
+mouse = '1099';
+dir_out = ['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\manual assignments\' mouse '\'];
+mkdir(dir_out)
+
+load(['Y:\Sarah\Analysis\Experiments\Random Motorized Treadmill\spatial segmentation\500 SVD components\artifacts removed conditional thresholding\post addback without high fine tuning\' mouse '\sources.mat'])
+figure; imagesc(sources.overlay); colorbar;
+title(mouse);
+region_assignments = [
+  
+    % Left side
+    24, 1;
+    9, 3;
+    31, 5;
+    37, 5;
+    7, 7;
+    44, 9;
+    5, 11;
+    32, 13;
+    42, 13;
+    1, 15;
+    12, 15;
+    4, 17;
+    28, 19;
+    29, 19;
+    19, 21;
+    36, 23;
+    22, 25;
+    30, 27;
+    25, 29;
+    23, 31;
+    33, 31;
+    23, 31;
+
+    % Right side
+    21, 2;
+    8, 4;
+    35, 6;
+    16, 8;
+    17, 8;
+    11, 8;
+    13, 10;
+    14, 10;
+    6, 12;
+    20, 14;
+    3, 16;
+    40, 16;
+    39, 16;
+    2, 18; 
+    15, 20;
+    18, 22;
+    34, 24;
+    38, 24;
+    27, 26;
+    26, 28;
+    10, 30;
+    41, 32;
+    43, 32;
+    ];
+
+[~,ordered] = sort(region_assignments(:,2));
+region_assignments = region_assignments(ordered,:);
+region_assignments_all{8} = region_assignments;
+
+node_vector = 1:32; 
+IC_vector = 1:44; 
+
+a = setdiff(IC_vector, region_assignments(:,1)); 
+b = setdiff(node_vector, region_assignments(:,2));
+if ~isempty(b)
+    warning(['Nodes ' num2str(b) ' are missing.']);
+end 
+if ~isempty(a)
+    warning(['ICs ' num2str(a) ' are missing.']);
+end
+save([dir_out 'region_assignments.mat'], 'region_assignments')
+
+
 %% count all node occurances
 holder = cellfun(@(x) x(:,2), region_assignments_all,'UniformOutput',false);
 holder =  cellfun(@unique, holder, 'UniformOutput', false);
