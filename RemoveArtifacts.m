@@ -410,6 +410,8 @@ function [parameters] = RemoveArtifacts(parameters)
      
     % If drawing & removing masks, begin manual masking protocol. 
     if isfield(parameters, 'draw_artifact_masks') && parameters.draw_artifact_masks
+        opts.WindowStyle = 'normal';
+
         % Set a "don't flip" value -- don't flip up-down for this sort of
         % masking.
         flip = false;
@@ -459,6 +461,7 @@ function [parameters] = RemoveArtifacts(parameters)
     parameters.sources_artifacts_removed_recent = parameters.sources_artifacts_removed;
 
     % Ask if the user wants to work on next source.
+    opts.WindowStyle = 'normal';
     user_answer1= inputdlg(['Do you want to work on the next source? y = yes, n = no'], 'User input', 1,{'n'}, opts); 
 
     % Convert the user's answer into a value
@@ -488,7 +491,7 @@ function [parameters] = RemoveArtifacts(parameters)
             next_max_iteration = parameters.maxIterations.numbers_only(end-1);
     
             if next_iterator_up < next_max_iteration
-
+                opts.WindowStyle = 'normal';
                 user_answer1= inputdlg(['Do you want to work on the next data set? y = yes, n = no'], 'User input', 1,{'n'}, opts); 
             
                 % Convert the user's answer into a value
