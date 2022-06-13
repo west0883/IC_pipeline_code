@@ -257,6 +257,10 @@ RunAnalysis({@RemoveArtifacts}, parameters);
 % % Dimension different sources are in.
 % parameters.sourcesDim = 3;
 % 
+% parameters.remove_entire_sources = true;
+% parameters.use_darkness_threshold = false;
+% parameters.draw_artifact_masks = true;
+% 
 % % Dimension the pixels dimension, different sources dimension of original data.
 % parameters.originalSourcesPixelsDim = 2; 
 % parameters.originalSourcesDim = 1; 
